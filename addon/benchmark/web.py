@@ -179,7 +179,7 @@ Add-on-Grundkonfiguration. Wirksam ab dem nächsten Lauf.</p>
 
 <script>
 const DAYS=__DATA__; const SET=__SET__; const MANU=__MANU__;
-const ENT_LABELS={"PV Leistung":"PV Leistung","Netz gesamt (negativ = Einspeisung)":"Netz gesamt (negativ = Einspeisung)","Netz Bezug (nur bei getrennten Sensoren)":"Netz Bezug — nur wenn Bezug/Einspeisung getrennte Sensoren sind","Netz Einspeisung (nur bei getrennten Sensoren)":"Netz Einspeisung — nur bei getrennten Sensoren","Hausverbrauch":"Hausverbrauch (ohne Wallbox)","Wärmepumpe Leistung":"Wärmepumpe (Leistung)","Wallbox Leistung":"Wallbox (Ladeleistung)","Wallbox verbunden (optional)":"Wallbox verbunden (binär, optional)","Preis Bezug":"Preis Bezug (€/kWh, dynamischer Tarif)","Preis Einspeisung (nur bei Direktvermarktung)":"Preis Einspeisung (€/kWh, nur bei Direktvermarktung)"};
+const ENT_LABELS={"PV Leistung":"PV Leistung","Netz gesamt (negativ = Einspeisung)":"Netz gesamt (negativ = Einspeisung)","Netz Bezug (nur bei getrennten Sensoren)":"Netz Bezug — nur wenn Bezug/Einspeisung getrennte Sensoren sind","Netz Einspeisung (nur bei getrennten Sensoren)":"Netz Einspeisung — nur bei getrennten Sensoren","Hausverbrauch":"Hausverbrauch (ohne Wallbox)","Wärmepumpe Leistung":"Wärmepumpe (Leistung)","Wallbox Leistung":"Wallbox (Ladeleistung)","Wallbox verbunden (optional)":"Auto anwesend (Binärsensor)","Preis Bezug":"Preis Bezug (€/kWh, dynamischer Tarif)","Preis Einspeisung (nur bei Direktvermarktung)":"Preis Einspeisung (€/kWh, nur bei Direktvermarktung)"};
 const EIDX=Object.keys(ENT_LABELS);
 const eid=k=>'e'+EIDX.indexOf(k);
 const EXKEY="Preis Einspeisung (nur bei Direktvermarktung)";
@@ -283,17 +283,21 @@ else{list=(HAENT.power||[]);if(cur&&!list.some(e=>e.entity_id===cur))list=[{enti
 div.appendChild(fillSel(eid(key),list,cur));f.appendChild(div)}}
 function saveSettings(){
  const mode=document.querySelector('input[name=expmode]:checked').value;
- const body={"Auflösung":val('s_res'),
-  "Geräte":{HEMS:val('s_hems'),Wechselrichter:val('s_pv'),Speicher:val('s_batt'),"Wärmepumpe":val('s_hp'),Wallbox:val('s_wb')},
-  "Batterie":{"Kapazität in kWh":num('s_cap'),"Ladeleistung in kW":num('s_pc'),"Entladeleistung in kW":num('s_pd'),"Wirkungsgrad in %":num('s_eta')},
-  "Grenzwerte":{"Wärmepumpe mindestens in kW":num('s_hpmin'),"Wärmepumpe höchstens in kW":num('s_hpmax'),"Wallbox mindestens in kW":num('s_wbmin'),"Wallbox höchstens in kW":num('s_wbmax')}};
- const sens=[];let expSensor="";
- for(const k of EIDX){const el=document.getElementById(eid(k));if(el&&el.value){sens.push({"Funktion":k,"Entität":el.value});if(k===EXKEY)expSensor=el.value}}
- body["Einspeisung"]=mode==='sensor'
-  ?{"Sensor":expSensor,"Feste Vergütung in €/kWh":""}
-  :{"Sensor":"","Feste Vergütung in €/kWh":val('s_pfx')};
- if(mode!=='sensor')sens.forEach(r=>{if(r["Funktion"]===EXKEY)r["Entität"]=""});
- body["Sensoren"]=sens.filter(r=>r["Entität"]);
+ const ent={};for(const k of EIDX){const el=document.getElementById(eid(k));ent[k]=el?el.value.trim():''}
+ const tarif={"Preis Bezug (Sensor)":ent["Preis Bezug"],"Einspeisung":mode==='sensor'?"Direktvermarktung":"Einspeisevergütung"};
+ if(mode==='sensor')tarif["Sensor Einspeisung (nur bei Direktvermarktung)"]=ent[EXKEY];
+ else{const f=num('s_pfx');if(f!=null)tarif["Feste Vergütung in €/kWh (nur bei Einspeisevergütung)"]=f}
+ const hemsm={"Hersteller":val('s_hems'),"PV Leistung":ent["PV Leistung"],
+  "Netz gesamt (negativ = Einspeisung)":ent["Netz gesamt (negativ = Einspeisung)"],
+  "Netz Bezug (nur bei getrennten Sensoren)":ent["Netz Bezug (nur bei getrennten Sensoren)"],
+  "Netz Einspeisung (nur bei getrennten Sensoren)":ent["Netz Einspeisung (nur bei getrennten Sensoren)"],
+  "Hausverbrauch":ent["Hausverbrauch"]};
+ if(val('s_pv'))hemsm["Wechselrichter"]=val('s_pv');
+ const body={"Auflösung":val('s_res'),"HEMS":hemsm,
+  "Speicher":{"Hersteller":val('s_batt'),"Kapazität in kWh":num('s_cap'),"Ladeleistung in kW":num('s_pc'),"Entladeleistung in kW":num('s_pd'),"Wirkungsgrad in %":num('s_eta')},
+  "Wärmepumpe":{"Hersteller":val('s_hp'),"Sensor":ent["Wärmepumpe Leistung"],"Mindestleistung in kW":num('s_hpmin'),"Höchstleistung in kW":num('s_hpmax')},
+  "Wallbox":{"Hersteller":val('s_wb'),"Sensor":ent["Wallbox Leistung"],"Auto anwesend (Binärsensor)":ent["Wallbox verbunden (optional)"],"Mindestleistung in kW":num('s_wbmin'),"Höchstleistung in kW":num('s_wbmax')},
+  "Tarif":tarif};
  fetch('api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
  .then(r=>r.json()).then(d=>{document.getElementById('setlog').textContent=d.ok?'Gespeichert ✓ wirksam ab dem nächsten Lauf.':('Fehler: '+(d.error||JSON.stringify(d)))});
 }
@@ -303,24 +307,34 @@ function num(id){const v=val(id);return v===''?null:parseFloat(v)}
 ['HEMS','WECHSELRICHTER','SPEICHER','WALLBOX','WAERMEPUMPE'].forEach(k=>{
  const dl=document.createElement('datalist');dl.id='m'+k;dl.innerHTML=MANU[k].map(m=>`<option value="${esc(m)}">`).join('');document.body.appendChild(dl)});
 function fillSettings(){
+ const H=SET["HEMS"]||{},S=SET["Speicher"]||{},W=SET["Wärmepumpe"]||{},B=SET["Wallbox"]||{},T=SET["Tarif"]||{};
  const d=SET["Geräte"]||SET.geraete||SET.devices||{},b=SET["Batterie"]||SET.batterie||SET.battery||{},gr=SET["Grenzwerte"]||SET.grenzwerte||{},e=SET["Einspeisung"]||{};
- s_hems.value=d.HEMS||d.hersteller_hems||d.ems_product||'';s_pv.value=d.Wechselrichter||d.hersteller_wechselrichter||d.pv_brand||'';
- s_batt.value=d.Speicher||d.hersteller_speicher||d.battery_brand||'';s_hp.value=d["Wärmepumpe"]||d.hersteller_waermepumpe||d.hp_brand||'';
- s_wb.value=d.Wallbox||d.hersteller_wallbox||d.wallbox_brand||'';
- s_cap.value=b["Kapazität in kWh"]??b.kapazitaet_kwh??b.capacity_kwh??'';s_pc.value=b["Ladeleistung in kW"]??b.ladeleistung_kw??b.p_charge_max??'';
- s_pd.value=b["Entladeleistung in kW"]??b.entladeleistung_kw??b.p_discharge_max??'';s_eta.value=b["Wirkungsgrad in %"]??b.wirkungsgrad_prozent??b.eta??'';
- s_hpmin.value=gr["Wärmepumpe mindestens in kW"]??gr.waermepumpe_min_kw??'';s_hpmax.value=gr["Wärmepumpe höchstens in kW"]??gr.waermepumpe_max_kw??'';
- s_wbmin.value=gr["Wallbox mindestens in kW"]??gr.wallbox_min_kw??'';s_wbmax.value=gr["Wallbox höchstens in kW"]??gr.wallbox_max_kw??'';
- const fx=e["Feste Vergütung in €/kWh"]??SET.preis_einspeisung_fix_eur??SET.price_exp_fixed??'';
+ s_hems.value=H.Hersteller||d.HEMS||d.hersteller_hems||d.ems_product||'';s_pv.value=H.Wechselrichter||d.Wechselrichter||d.hersteller_wechselrichter||d.pv_brand||'';
+ s_batt.value=S.Hersteller||d.Speicher||d.hersteller_speicher||d.battery_brand||'';s_hp.value=W.Hersteller||d["Wärmepumpe"]||d.hersteller_waermepumpe||d.hp_brand||'';
+ s_wb.value=B.Hersteller||d.Wallbox||d.hersteller_wallbox||d.wallbox_brand||'';
+ s_cap.value=S["Kapazität in kWh"]??b["Kapazität in kWh"]??b.kapazitaet_kwh??b.capacity_kwh??'';s_pc.value=S["Ladeleistung in kW"]??b["Ladeleistung in kW"]??b.ladeleistung_kw??b.p_charge_max??'';
+ s_pd.value=S["Entladeleistung in kW"]??b["Entladeleistung in kW"]??b.entladeleistung_kw??b.p_discharge_max??'';s_eta.value=S["Wirkungsgrad in %"]??b["Wirkungsgrad in %"]??b.wirkungsgrad_prozent??b.eta??'';
+ s_hpmin.value=W["Mindestleistung in kW"]??gr["Wärmepumpe mindestens in kW"]??gr.waermepumpe_min_kw??'';s_hpmax.value=W["Höchstleistung in kW"]??gr["Wärmepumpe höchstens in kW"]??gr.waermepumpe_max_kw??'';
+ s_wbmin.value=B["Mindestleistung in kW"]??gr["Wallbox mindestens in kW"]??gr.wallbox_min_kw??'';s_wbmax.value=B["Höchstleistung in kW"]??gr["Wallbox höchstens in kW"]??gr.wallbox_max_kw??'';
+ const fx=T["Feste Vergütung in €/kWh (nur bei Einspeisevergütung)"]??e["Feste Vergütung in €/kWh"]??SET.preis_einspeisung_fix_eur??SET.price_exp_fixed??'';
  s_pfx.value=fx;
- (e.Sensor||!fx?document.getElementById('exp_dyn'):document.getElementById('exp_fix')).checked=true;
+ ((T.Einspeisung==="Direktvermarktung")||(!T.Einspeisung&&(e.Sensor||!fx))?document.getElementById('exp_dyn'):document.getElementById('exp_fix')).checked=true;
  let rawRes=SET["Auflösung"]??SET["Auflösung_in_Sekunden"]??(SET.aufloesung_minuten?SET.aufloesung_minuten*60:(SET.resolution_min?SET.resolution_min*60:60));
  let sec={"10 Sekunden":10,"5 Minuten":300}[rawRes]||(+rawRes||60);
  if(![10,60,300].includes(sec))sec=60;
  s_res.value={10:"10 Sekunden",60:"1 Minute",300:"5 Minuten"}[sec];
  document.getElementById('sensorfelder').innerHTML='<p class="note">Sensoren werden geladen…</p>'}
 fillSettings();buildSensorFieldsEmpty();render();
-function curEnt(key){const nk=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
+function curEnt(key){
+ const H=SET["HEMS"]||{},W=SET["Wärmepumpe"]||{},B=SET["Wallbox"]||{},T=SET["Tarif"]||{};
+ const V6={"PV Leistung":H["PV Leistung"],"Netz gesamt (negativ = Einspeisung)":H["Netz gesamt (negativ = Einspeisung)"],
+  "Netz Bezug (nur bei getrennten Sensoren)":H["Netz Bezug (nur bei getrennten Sensoren)"],
+  "Netz Einspeisung (nur bei getrennten Sensoren)":H["Netz Einspeisung (nur bei getrennten Sensoren)"],
+  "Hausverbrauch":H["Hausverbrauch"],"Wärmepumpe Leistung":W.Sensor,"Wallbox Leistung":B.Sensor,
+  "Wallbox verbunden (optional)":B["Auto anwesend (Binärsensor)"],"Preis Bezug":T["Preis Bezug (Sensor)"],
+  "Preis Einspeisung (nur bei Direktvermarktung)":T["Sensor Einspeisung (nur bei Direktvermarktung)"]};
+ if(V6[key])return V6[key];
+ const nk=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
  let s=SET["Sensoren"]||SET.sensoren||{};
  if(Array.isArray(s)){const m={};for(const e of s){if(e&&e["Funktion"]&&e["Entität"])m[e["Funktion"]]=e["Entität"]}s=m}
  for(const k in s){if(s[k]&&nk(k)===nk(key))return s[k]}
@@ -404,8 +418,8 @@ def _run_job(dates):
         _RUN_STATE["running"] = False
 
 
-_ALLOWED_SETTING_KEYS = {"Auflösung", "Einspeisung", "Sensoren",
-                         "Batterie", "Grenzwerte", "Geräte"}
+_ALLOWED_SETTING_KEYS = {"Auflösung", "HEMS", "Speicher", "Wärmepumpe",
+                         "Wallbox", "Tarif"}
 
 
 def _mirror_to_supervisor():

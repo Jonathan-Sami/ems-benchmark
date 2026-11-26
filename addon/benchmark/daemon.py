@@ -58,8 +58,66 @@ def load_options():
     return userconfig.load(DATA_DIR, OPTIONS_FILE)
 
 
+def _run_opts_v6(raw: dict) -> dict:
+    """v0.6-Aufklapp-Menues (HEMS/Speicher/Waermepumpe/Wallbox/Tarif) -> internes Schema."""
+    def s(v):
+        return str(v or "").strip()
+    h = raw.get("HEMS") or {}
+    sp = raw.get("Speicher") or {}
+    wp = raw.get("Wärmepumpe") or raw.get("Waermepumpe") or {}
+    wb = raw.get("Wallbox") or {}
+    tf = raw.get("Tarif") or {}
+    res = {"10 Sekunden": 10, "1 Minute": 60, "5 Minuten": 300}.get(
+        s(raw.get("Auflösung", raw.get("Aufloesung"))), 60)
+    modus = s(tf.get("Einspeisung"))
+    fix = tf.get("Feste Vergütung in €/kWh (nur bei Einspeisevergütung)")
+    eff = float(sp.get("Wirkungsgrad in %", 100))
+    if eff > 1.5:
+        eff /= 100.0
+    return {
+        "resolution_sec": max(10, min(int(res), 600)),
+        "min_coverage": MIN_COVERAGE,
+        "kappa": KAPPA_EUR_PER_KWH,
+        "price_exp_fixed": ("" if modus == "Direktvermarktung"
+                            else ("" if fix is None else str(fix))),
+        "entities": {
+            "pv": s(h.get("PV Leistung")),
+            "grid_net": s(h.get("Netz gesamt (negativ = Einspeisung)")),
+            "grid_import": s(h.get("Netz Bezug (nur bei getrennten Sensoren)")),
+            "grid_export": s(h.get("Netz Einspeisung (nur bei getrennten Sensoren)")),
+            "house": s(h.get("Hausverbrauch")),
+            "hp": s(wp.get("Sensor")),
+            "wb": s(wb.get("Sensor")),
+            "wb_connected": s(wb.get("Auto anwesend (Binärsensor)")),
+            "price_imp": s(tf.get("Preis Bezug (Sensor)")),
+            "price_exp": (s(tf.get("Sensor Einspeisung (nur bei Direktvermarktung)"))
+                          if modus == "Direktvermarktung" else ""),
+        },
+        "battery": {
+            "capacity_kwh": float(sp.get("Kapazität in kWh", 0) or 0),
+            "p_charge_max": float(sp.get("Ladeleistung in kW", 0) or 0),
+            "p_discharge_max": float(sp.get("Entladeleistung in kW", 0) or 0),
+            "eta": eff,
+        },
+        "hp": {"p_min": float(wp.get("Mindestleistung in kW", 0.5) or 0.5),
+               "p_max": float(wp.get("Höchstleistung in kW", 2.0) or 2.0)},
+        "wallbox": {"p_min": float(wb.get("Mindestleistung in kW", 1.0) or 1.0),
+                    "p_max": float(wb.get("Höchstleistung in kW", 11.0) or 11.0)},
+        "devices": {
+            "ems_product": norm_hems(s(h.get("Hersteller"))),
+            "battery_brand": s(sp.get("Hersteller")),
+            "pv_brand": s(h.get("Wechselrichter")),
+            "hp_brand": s(wp.get("Hersteller")),
+            "wallbox_brand": s(wb.get("Hersteller")),
+        },
+    }
+
+
 def run_opts(raw: dict) -> dict:
     """Deutsche Options-Schluessel -> internes Schema (mit Alt-Fallbacks)."""
+    if any(k in raw for k in ("HEMS", "Speicher", "Wärmepumpe", "Waermepumpe",
+                              "Wallbox", "Tarif")):
+        return _run_opts_v6(raw)
     g = lambda k, d=None: raw.get(k, d)
     sr = g("Sensoren") or g("sensoren") or g("entities") or {}
     if isinstance(sr, list):
