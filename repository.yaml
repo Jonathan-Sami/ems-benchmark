@@ -1,0 +1,4 @@
+name: EMS-Benchmark Community
+url: https://github.com/Jonathan-Sami/ems-benchmark
+addons:
+  - ./addon

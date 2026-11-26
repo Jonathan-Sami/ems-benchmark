@@ -7,6 +7,8 @@ Misst **Intelligenz statt Ausstattung**: Bewertet wird nur, wie gut ein EMS
 das Potential desselben Hauses ausschöpft — PV-Größe und Speicher skalieren
 heraus.
 
+[![Open your Home Assistant instance and show the add app repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FJonathan-Sami%2Fems-benchmark)
+
 ## Methodik (kurz)
 
 Pro Kalendertag (Experiment, 15-Min bis 1-Min-Raster, konfigurierbar):
