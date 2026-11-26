@@ -1,0 +1,609 @@
+{
+ "hems_by_producer": {
+  "ABB AG": [
+   "Smart EMS EX.1"
+  ],
+  "ASKOMA": [
+   "ASKO Set"
+  ],
+  "Awatt Electronic": [
+   "HEMS PRO"
+  ],
+  "Bosch Home Comfort Group": [
+   "Bosch Energiemanager"
+  ],
+  "Buderus": [
+   "MyEnergyMaster"
+  ],
+  "CUBOS": [
+   "CUBOS.Energy"
+  ],
+  "Clever-PV": [
+   "clever-PV"
+  ],
+  "Consolinno Energy GmbH": [
+   "Leaflet HEMS"
+  ],
+  "DBT Digital Building Technology GmbH & Co. KG": [
+   "wibutler pro"
+  ],
+  "Dafi GmbH": [
+   "SMARTFOX Energiemanagement"
+  ],
+  "E.ON": [
+   "E.ON Home Energiemanager"
+  ],
+  "E3/DC Group": [
+   "Integriertes Energiemanagement des E3/DC-Hauskraftwerks"
+  ],
+  "EcoFlow Inc.": [
+   "EcoFlow Oasis"
+  ],
+  "EcoPhi Renewables Engineering GmbH": [
+   "EcoPhi EMS"
+  ],
+  "Emulate Energy AB": [
+   "Emulate HEMS"
+  ],
+  "EnBW Energie Baden-Württemberg AG": [
+   "EnBW Mavi"
+  ],
+  "Energieversum": [
+   "EV.cockpit"
+  ],
+  "Eniris": [
+   "SmartgridOne"
+  ],
+  "Enpal": [
+   "Enpal.One"
+  ],
+  "Enphase Energy": [
+   "IQ Energy Management"
+  ],
+  "FENECON": [
+   "FEMS"
+  ],
+  "Fronius International GmbH": [
+   "Fronius"
+  ],
+  "Hager Vertriebs­gesellschaft mbH & Co. KG": [
+   "flow"
+  ],
+  "Hosenso GmbH & Co. KG": [
+   "Hsen®Boxx"
+  ],
+  "Huawei Technologies Deutschland GmbH": [
+   "Smart Assistant SA4H-A02"
+  ],
+  "Jostec Systems GmbH": [
+   "VOLTRADER"
+  ],
+  "KOSTAL Solar Electric GmbH": [
+   "KOSTAL PLENTICORE G3 und KOSTAL Energy Meter",
+   "KOSTAL PLENTICORE G3 und KOSTAL Smart Energy Meter"
+  ],
+  "Kiwigrid GmbH": [
+   "Kiwigrid"
+  ],
+  "LADE GmbH": [
+   "LADEgenius"
+  ],
+  "Loxone": [
+   "Miniserver"
+  ],
+  "M-TEC Energy Systems GmbH": [
+   "M-TEC E-Smart"
+  ],
+  "MarkeDroid": [
+   "MarkeDroid"
+  ],
+  "NEW AG": [
+   "NEW eManager"
+  ],
+  "Nexxtlab S.A.": [
+   "Smartmaster"
+  ],
+  "PLEXLOG GmbH": [
+   "PL"
+  ],
+  "PTR Energie GmbH": [
+   "peter Pro"
+  ],
+  "Podero": [
+   "Podero"
+  ],
+  "Powernaut BV": [
+   "Powernaut Energy Operations Workspace™"
+  ],
+  "RAZO Energy": [
+   "RAZO Energy"
+  ],
+  "Reduxi FlexCo": [
+   "Reduxi"
+  ],
+  "SENEC GmbH": [
+   "SENEC.PowerPilot"
+  ],
+  "SHYFT": [
+   "shyft-power.com"
+  ],
+  "SMA Solar Technology AG": [
+   "SMA Data Manager M",
+   "SMA Home Storage Solution",
+   "Sunny Home Manager 2.0"
+  ],
+  "SOLUXION": [
+   "Soluxion Hems Plus"
+  ],
+  "Schneider Electric": [
+   "HEMSlogic"
+  ],
+  "Smappee NV": [
+   "Infinity"
+  ],
+  "Smart1 Solutions": [
+   "Smart1 EMS-Systeme"
+  ],
+  "Solar Manager AG": [
+   "Solar Manager"
+  ],
+  "Solaraero GmbH Gruppe": [
+   "Flex Energie EMS"
+  ],
+  "Solarwatt GmbH": [
+   "Solarwatt Manager"
+  ],
+  "SpotmyEnergy": [
+   "SmartRobo"
+  ],
+  "Stadtwerke Gütersloh": [
+   "GT-SmartEnergy"
+  ],
+  "Symcon": [
+   "Symcon"
+  ],
+  "TEKKO Gebäudeautomation GmbH": [
+   "TEKKO Energiemanager"
+  ],
+  "TQ-Systems GmbH": [
+   "Energy Manager EM410"
+  ],
+  "Tinkerforge GmbH": [
+   "WARP Energy Manager 2.0"
+  ],
+  "Viessmann Holding International GmbH": [
+   "Viessmann Energy Management"
+  ],
+  "Wendeware AG": [
+   "AMPERIX® Energiemanagement-System Home 4"
+  ],
+  "Yello Strom GmbH": [
+   "Yello Hub"
+  ],
+  "Zerofy OÜ": [
+   "Zerofy"
+  ],
+  "Zählerfreunde": [
+   "ZF-Automations"
+  ],
+  "beegy GmbH": [
+   "beegy HEMS"
+  ],
+  "chargebyte": [
+   "CB Energy"
+  ],
+  "ecodata solutions GmbH": [
+   "SmartDog"
+  ],
+  "enercity": [
+   "enercity PULS"
+  ],
+  "energielenker solutions GmbH": [
+   "Enbas"
+  ],
+  "enisyst GmbH": [
+   "eni.control"
+  ],
+  "enjoyelec B.V.": [
+   "enjoyelec HEMS"
+  ],
+  "enyo GmbH": [
+   "enyo"
+  ],
+  "evcc.io": [
+   "evcc"
+  ],
+  "gridX GmbH": [
+   "XENON"
+  ],
+  "initEnergy": [
+   "initEnergy EMS"
+  ],
+  "ise Individuelle Software und Elektronik GmbH": [
+   "SMART CONNECT KNX e-charge II"
+  ],
+  "kamaste.it GmbH": [
+   "e-pot"
+  ],
+  "myGEKKO": [
+   "Energiemanager"
+  ],
+  "neoom International GmbH": [
+   "neoom Ai"
+  ],
+  "openWB GmbH & Co. KG": [
+   "openWB (software2)"
+  ],
+  "sonnen GmbH": [
+   "Smart Energy System"
+  ],
+  "storm.house": [
+   "storm.house EMS"
+  ],
+  "thermondo GmbH": [
+   "thermondo smart"
+  ]
+ },
+ "hw_manufacturers": {
+  "Batterie und Photovoltaik": {
+   "SolaX Power": 25,
+   "Delta": 21,
+   "SMA": 21,
+   "GoodWe": 18,
+   "SolarEdge": 18,
+   "Alpha ESS": 17,
+   "Sungrow": 17,
+   "Deye": 15,
+   "Fronius": 15,
+   "Sofar": 15,
+   "Solarmax": 14,
+   "Ecoflow": 13,
+   "Kostal": 12,
+   "Solarwatt": 12,
+   "Solis": 12,
+   "Huawei": 9,
+   "Sonnen": 9,
+   "Fox ESS": 8,
+   "Varta": 8,
+   "ABB / Fimer": 7,
+   "Advanced Energy": 7,
+   "Canadian Solar": 7,
+   "Fenecon": 7,
+   "Victron Energy": 7,
+   "E3DC": 6,
+   "Kaco": 6,
+   "SAJ": 6,
+   "Solarman": 6,
+   "Steca / Kontron Solar": 6,
+   "APsystems": 5,
+   "IBC Solar": 5,
+   "RCT": 5,
+   "Sigenergy": 5,
+   "Sunsynk": 5,
+   "TAB": 5,
+   "AXITEC": 4,
+   "Enphase": 4,
+   "Growatt": 4,
+   "Hoymiles": 4,
+   "SAX": 4,
+   "Schneider Electric": 4,
+   "Smart me": 4,
+   "Afore": 3,
+   "GivEnergy": 3,
+   "SENEC": 3,
+   "Sonnenkraft": 3,
+   "Tesla": 3,
+   "Yaskawa Solectria Solar": 3,
+   "modual": 3,
+   "neoom": 3,
+   "AEG": 2,
+   "AUSTA": 2,
+   "Albatech": 2,
+   "Azzurro": 2,
+   "ENSET": 2,
+   "Ginlong": 2,
+   "Kontron Solar": 2,
+   "LG": 2,
+   "M-TEC": 2,
+   "PIXII": 2,
+   "Prolux": 2,
+   "Qcells": 2,
+   "Smatrfox": 2,
+   "Solplanet": 2,
+   "ZCS": 2,
+   "AISWEI": 1,
+   "ALPHA-SOL": 1,
+   "APROS Solar Technology": 1,
+   "Altenergy Power System": 1,
+   "Anker": 1,
+   "Astronergy": 1,
+   "Aten": 1,
+   "Autarco": 1,
+   "Azzurro Inverter": 1,
+   "Beck Elektrotechnik": 1,
+   "Benning": 1,
+   "Bosswerk": 1,
+   "CE+T": 1,
+   "Danfoss Solar": 1,
+   "Discovergy": 1,
+   "Dyness": 1,
+   "Elgris": 1,
+   "Eltek": 1,
+   "FerroAmp": 1,
+   "GREENROCK": 1,
+   "Gridcon": 1,
+   "Hager": 1,
+   "HomeWizard": 1,
+   "Innovenergy": 1,
+   "Intillion": 1,
+   "Kopp": 1,
+   "Ledvance": 1,
+   "Loxone": 1,
+   "OpenEMS": 1,
+   "Oztek Corp": 1,
+   "Plexlog": 1,
+   "Powerdog": 1,
+   "Powerfox": 1,
+   "Q.HOME": 1,
+   "Q.HOME+": 1,
+   "Rui": 1,
+   "SENMARCK": 1,
+   "Senergy": 1,
+   "Solarlog": 1,
+   "Strong Energy": 1,
+   "Studer Innotec": 1,
+   "Sunova": 1,
+   "Tasmota": 1,
+   "Twice": 1,
+   "UCanPower": 1,
+   "Viessmann": 1,
+   "Wattsonic": 1,
+   "Youless": 1,
+   "Zendure": 1,
+   "a-TroniX": 1,
+   "ads-tec": 1,
+   "eFriends": 1,
+   "ecocoach": 1
+  },
+  "Wallbox / Ladestation": {
+   "ABL": 17,
+   "Keba": 14,
+   "Compleo": 13,
+   "ABB": 9,
+   "Alfen": 9,
+   "Phoenix Contact": 9,
+   "go-e": 9,
+   "GARO": 8,
+   "Hardy Barth": 7,
+   "Heidelberg": 7,
+   "Schneider Electric": 7,
+   "Viessmann": 7,
+   "easee": 7,
+   "Mennekes": 6,
+   "alpitronic": 6,
+   "Delta": 5,
+   "Entratek": 5,
+   "Etrel": 5,
+   "LADE": 5,
+   "PCE": 5,
+   "Wallbox": 5,
+   "Walther-Werker": 5,
+   "Webasto": 5,
+   "Weidmüller": 5,
+   "Autel": 4,
+   "Bender": 4,
+   "Cubos": 4,
+   "E3DC": 4,
+   "EM2GO": 4,
+   "Hesotech": 4,
+   "SENEC": 4,
+   "Smart-me": 4,
+   "Smartfox": 4,
+   "TinkerForge": 4,
+   "Vestel": 4,
+   "BMW": 3,
+   "Charge Amps": 3,
+   "EATON": 3,
+   "EVBox": 3,
+   "EVTAP": 3,
+   "JUICE": 3,
+   "KOSTAD UNITY": 3,
+   "Pracht": 3,
+   "Raedian": 3,
+   "Technivolt": 3,
+   "Wallbe": 3,
+   "Zaptec": 3,
+   "echarge": 3,
+   "openWB": 3,
+   "sun2wheel": 3,
+   "APsystems": 2,
+   "Alphatec": 2,
+   "Amperfied": 2,
+   "Audi": 2,
+   "Autoaid": 2,
+   "Berger": 2,
+   "Cupra": 2,
+   "DaheimLaden": 2,
+   "E.ON": 2,
+   "EWE Go": 2,
+   "Ecoflow": 2,
+   "Elli": 2,
+   "Evect": 2,
+   "Fronius": 2,
+   "GL Charge GlowBox": 2,
+   "Hager": 2,
+   "Homecharge": 2,
+   "Honda": 2,
+   "LadeFoxx": 2,
+   "NRGkick": 2,
+   "Optec / Garo": 2,
+   "Peblar": 2,
+   "Porsche": 2,
+   "SMA": 2,
+   "Scapo": 2,
+   "Schrack": 2,
+   "Skoda": 2,
+   "SolarEdge": 2,
+   "Sonnen": 2,
+   "Spelsberg": 2,
+   "Tesla": 2,
+   "Volkswagen": 2,
+   "cFos eMobility": 2,
+   "ies": 2,
+   "neoom": 2,
+   "open WB": 2,
+   "AMPURE": 1,
+   "Benning": 1,
+   "Clemap": 1,
+   "Compleo / Innogy": 1,
+   "DELTA": 1,
+   "Dadapower": 1,
+   "Dazebox": 1,
+   "ESL": 1,
+   "EV body": 1,
+   "EVSE": 1,
+   "EVTEC AG": 1,
+   "EcoHarmony": 1,
+   "Edgetech": 1,
+   "Elinta Charge": 1,
+   "Enelion": 1,
+   "Enercab": 1,
+   "Enovates": 1,
+   "Ensto": 1,
+   "Fox ESS": 1,
+   "Free2move": 1,
+   "INRO": 1,
+   "Innogy": 1,
+   "KREISEL Electric": 1,
+   "Kathrein KWB": 1,
+   "Kathrein eMobility": 1,
+   "Kostal": 1,
+   "Metron": 1,
+   "NeCharge": 1,
+   "OBO Bettermann": 1,
+   "OCPP": 1,
+   "OpenEVSE": 1,
+   "Optec": 1,
+   "Orbis": 1,
+   "PANTABOX": 1,
+   "POWERJames": 1,
+   "PUMP": 1,
+   "Partino": 1,
+   "Pulsares": 1,
+   "SOLARWATT": 1,
+   "Siemens": 1,
+   "Sigenergy": 1,
+   "Solax": 1,
+   "Sungrow": 1,
+   "TechniSat": 1,
+   "Teltonika": 1,
+   "Tigo": 1,
+   "Ubitricity": 1,
+   "Victron Energy": 1,
+   "Zerova": 1,
+   "ctek": 1,
+   "ebee": 1,
+   "ecotap": 1,
+   "i-CHARGE": 1,
+   "myenergy": 1
+  },
+  "Wärmepumpe": {
+   "Alpha Innotec": 96,
+   "tecalor": 63,
+   "Stiebel Eltron": 51,
+   "Viessmann": 46,
+   "NIBE": 42,
+   "KNV": 38,
+   "CTC": 26,
+   "Vaillant": 25,
+   "Hoval": 20,
+   "Mitsubishi": 15,
+   "iDM": 15,
+   "Buderus": 14,
+   "Bosch": 13,
+   "M-TEC": 11,
+   "Wolf": 10,
+   "Panasonic": 8,
+   "Weishaupt": 4,
+   "AEG Haustechnik": 3,
+   "Daikin": 3,
+   "LG": 3,
+   "Nefit": 3,
+   "Dimplex": 2,
+   "EGO": 2,
+   "Kronoterm": 2,
+   "Novelan": 2,
+   "Oertli": 2,
+   "Roth Werke": 2,
+   "Saunier Duval": 2,
+   "Waterkote": 2,
+   "1 Eco Design GmbH": 1,
+   "Akvaterm": 1,
+   "Andivi": 1,
+   "Broetje": 1,
+   "CTA": 1,
+   "Ecoflow": 1,
+   "Ecoforest": 1,
+   "Heliotherm": 1,
+   "Itron": 1,
+   "Junkers": 1,
+   "Keba": 1,
+   "LAMBDA": 1,
+   "Ochsner": 1,
+   "PEGO": 1,
+   "Remeha": 1,
+   "S+W": 1,
+   "SG Ready": 1,
+   "SONNENKRAFT": 1,
+   "Samsung": 1,
+   "Schneider Electric": 1,
+   "Siemens": 1,
+   "Solvis": 1,
+   "TARegler STC": 1,
+   "Thermotion": 1,
+   "Worcester Bosch": 1,
+   "aqotec": 1,
+   "heatrex": 1
+  },
+  "Heizstab": {
+   "my-PV": 4,
+   "GUDE": 3,
+   "Smartfox": 2,
+   "Askoma": 1,
+   "EGO": 1,
+   "Fronius": 1,
+   "Siemens": 1
+  },
+  "Stromtarif": {
+   "EnBW": 2,
+   "Yello": 2,
+   "priwatt": 2,
+   "rabot.energy": 2,
+   "E.ON": 1,
+   "EPEX-Spot": 1,
+   "Enercity": 1,
+   "Enpal": 1,
+   "Erenja": 1,
+   "LUOX energy": 1,
+   "LichtBlick": 1,
+   "Octopus Energy": 1,
+   "Ostrom": 1,
+   "SimplyGreen": 1,
+   "Sonnen": 1,
+   "Stadtwerke Gütersloh": 1,
+   "Voltego": 1,
+   "ZEWOTHERM": 1,
+   "aWATTar": 1,
+   "entega": 1,
+   "naturstrom": 1,
+   "prokon": 1,
+   "tado": 1,
+   "thermondo": 1,
+   "tibber": 1
+  },
+  "Steuereinheit": {
+   "EEBUS": 2,
+   "Relais": 2
+  }
+ }
+}

@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+server/results.db
+tmp/
+.DS_Store
+assets/logo/preview.html
+scripts_deploy.py

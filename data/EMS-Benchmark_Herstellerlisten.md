@@ -1,0 +1,617 @@
+# Herstellerlisten für den EMS-Benchmark
+
+Recherchestand: 24.11.2026. Primärquelle: [HEMS-Finder der Hochschule Ansbach](https://hems-finder.org/) — 83 HEMS, 1985 Geräte-Einträge, über die API (`/api/hems`, `/api/hardware`) am 24.11.2026 ausgelesen. Rohdaten mit Gerätezahlen: `ems-benchmark/data/hersteller_hems_finder_roh.json`. Ergänzt um pv magazine Marktübersichten, ladecloud.io, energie-experten.org, dezentralo.de.
+
+**Markt-Lage 2026 (für die Benchmark-Auswahl relevant):** SENEC ohne Neukundengeschäft (EnBW) · RCT Power Insolvenz 09/2026 · VARTA Storage Insolvenz 10/2026 · sonnen GmbH Insolvenz 22.10.2026 · SolarMax Insolvenz 11/2024 · Viessmann GridBox eingestellt 12/2025.
+
+## 1. HEMS / Energiemanagementsysteme — 86 Anbieter
+
+HEMS-Finder mit Systemnamen; am Ende die ergänzten, dort nicht erfassten Anbieter.
+
+- **ABB AG** — Smart EMS EX.1
+- **ASKOMA** — ASKO Set
+- **Awatt Electronic** — HEMS PRO
+- **Bosch Home Comfort Group** — Bosch Energiemanager
+- **Buderus** — MyEnergyMaster
+- **CUBOS** — CUBOS.Energy
+- **Clever-PV** — clever-PV
+- **Consolinno Energy GmbH** — Leaflet HEMS
+- **DBT Digital Building Technology GmbH & Co. KG** — wibutler pro
+- **Dafi GmbH** — SMARTFOX Energiemanagement
+- **E.ON** — E.ON Home Energiemanager
+- **E3/DC Group** — Integriertes Energiemanagement des E3/DC-Hauskraftwerks
+- **EcoFlow Inc.** — EcoFlow Oasis
+- **EcoPhi Renewables Engineering GmbH** — EcoPhi EMS
+- **Emulate Energy AB** — Emulate HEMS
+- **EnBW Energie Baden-Württemberg AG** — EnBW Mavi
+- **Energieversum** — EV.cockpit
+- **Eniris** — SmartgridOne
+- **Enpal** — Enpal.One
+- **Enphase Energy** — IQ Energy Management
+- **FENECON** — FEMS
+- **Fronius International GmbH** — Fronius
+- **Hager Vertriebs­gesellschaft mbH & Co. KG** — flow
+- **Hosenso GmbH & Co. KG** — Hsen®Boxx
+- **Huawei Technologies Deutschland GmbH** — Smart Assistant SA4H-A02
+- **Jostec Systems GmbH** — VOLTRADER
+- **KOSTAL Solar Electric GmbH** — KOSTAL PLENTICORE G3 und KOSTAL Energy Meter, KOSTAL PLENTICORE G3 und KOSTAL Smart Energy Meter
+- **Kiwigrid GmbH** — Kiwigrid
+- **LADE GmbH** — LADEgenius
+- **Loxone** — Miniserver
+- **M-TEC Energy Systems GmbH** — M-TEC E-Smart
+- **MarkeDroid** — MarkeDroid
+- **NEW AG** — NEW eManager
+- **Nexxtlab S.A.** — Smartmaster
+- **PLEXLOG GmbH** — PL
+- **PTR Energie GmbH** — peter Pro
+- **Podero** — Podero
+- **Powernaut BV** — Powernaut Energy Operations Workspace™
+- **RAZO Energy** — RAZO Energy
+- **Reduxi FlexCo** — Reduxi
+- **SENEC GmbH** — SENEC.PowerPilot
+- **SHYFT** — shyft-power.com
+- **SMA Solar Technology AG** — SMA Data Manager M, SMA Home Storage Solution, Sunny Home Manager 2.0
+- **SOLUXION** — Soluxion Hems Plus
+- **Schneider Electric** — HEMSlogic
+- **Smappee NV** — Infinity
+- **Smart1 Solutions** — Smart1 EMS-Systeme
+- **Solar Manager AG** — Solar Manager
+- **Solaraero GmbH Gruppe** — Flex Energie EMS
+- **Solarwatt GmbH** — Solarwatt Manager
+- **SpotmyEnergy** — SmartRobo
+- **Stadtwerke Gütersloh** — GT-SmartEnergy
+- **Symcon** — Symcon
+- **TEKKO Gebäudeautomation GmbH** — TEKKO Energiemanager
+- **TQ-Systems GmbH** — Energy Manager EM410
+- **Tinkerforge GmbH** — WARP Energy Manager 2.0
+- **Viessmann Holding International GmbH** — Viessmann Energy Management
+- **Wendeware AG** — AMPERIX® Energiemanagement-System Home 4
+- **Yello Strom GmbH** — Yello Hub
+- **Zerofy OÜ** — Zerofy
+- **Zählerfreunde** — ZF-Automations
+- **beegy GmbH** — beegy HEMS
+- **chargebyte** — CB Energy
+- **ecodata solutions GmbH** — SmartDog
+- **enercity** — enercity PULS
+- **energielenker solutions GmbH** — Enbas
+- **enisyst GmbH** — eni.control
+- **enjoyelec B.V.** — enjoyelec HEMS
+- **enyo GmbH** — enyo
+- **evcc.io** — evcc
+- **gridX GmbH** — XENON
+- **initEnergy** — initEnergy EMS
+- **ise Individuelle Software und Elektronik GmbH** — SMART CONNECT KNX e-charge II
+- **kamaste.it GmbH** — e-pot
+- **myGEKKO** — Energiemanager
+- **neoom International GmbH** — neoom Ai
+- **openWB GmbH & Co. KG** — openWB (software2)
+- **sonnen GmbH** — Smart Energy System
+- **storm.house** — storm.house EMS
+- **thermondo GmbH** — thermondo smart
+- **1KOMMA5° (Heartbeat AI)** — *ergänzt, nicht im HEMS-Finder*
+- **Tesla Energy** — *ergänzt, nicht im HEMS-Finder*
+- **Sungrow** — *ergänzt, nicht im HEMS-Finder*
+- **Victron Energy** — *ergänzt, nicht im HEMS-Finder*
+- **Tibber** — *ergänzt, nicht im HEMS-Finder*
+- **myenergi (myenergi App)** — *ergänzt, nicht im HEMS-Finder*
+
+Plattform-Hintergründe (wichtig für Gruppierung im Benchmark): **gridX** (E.ON) → E.ON Home, smartY (heimWatt), liya (greenblocks), Soly Brain, ELIO, 1KOMMA5°-Portal · **Kiwigrid** → Solarwatt Manager, ab 2027 EAM · **clever-PV** → GASAG, Homenergy, enerixControl · **Solar Manager** → thermondo smart, Busch-Jaeger · **OpenEMS** → FENECON FEMS, Consolinno Leaflet, KACO Leaflet blueplanet.
+
+## 2. PV + Batterie
+
+### 2a. Wechselrichter — 98
+
+- SolaX Power
+- Delta
+- SMA
+- GoodWe
+- SolarEdge
+- Alpha ESS
+- Sungrow
+- Deye
+- Fronius
+- Sofar
+- Solarmax
+- Kostal
+- Solarwatt
+- Solis
+- Huawei
+- Sonnen
+- Fox ESS
+- Varta
+- ABB / Fimer
+- Advanced Energy
+- Canadian Solar
+- Fenecon
+- Victron Energy
+- E3DC
+- Kaco
+- SAJ
+- Steca / Kontron Solar
+- APsystems
+- IBC Solar
+- RCT
+- Sigenergy
+- Sunsynk
+- TAB
+- AXITEC
+- Enphase
+- Growatt
+- Hoymiles
+- SAX
+- Schneider Electric
+- Smart me
+- Afore
+- GivEnergy
+- SENEC
+- Sonnenkraft
+- Tesla
+- Yaskawa Solectria Solar
+- neoom
+- AEG
+- AUSTA
+- Albatech
+- Azzurro
+- Ginlong
+- Kontron Solar
+- LG
+- M-TEC
+- PIXII
+- Prolux
+- Qcells
+- Smatrfox
+- Solplanet
+- ZCS
+- AISWEI
+- ALPHA-SOL
+- APROS Solar Technology
+- Altenergy Power System
+- Anker
+- Astronergy
+- Autarco
+- Azzurro Inverter
+- Benning
+- Bosswerk
+- CE+T
+- Danfoss Solar
+- Dyness
+- Elgris
+- Eltek
+- FerroAmp
+- GREENROCK
+- Gridcon
+- Innovenergy
+- Intillion
+- Oztek Corp
+- Powerdog
+- Q.HOME
+- Rui
+- Strong Energy
+- Studer Innotec
+- Sunova
+- UCanPower
+- Viessmann
+- Zendure
+- a-TroniX
+- ads-tec
+- Tigo
+- Pylontech
+- MPP Power
+- RCT Power
+- Sofar Solar
+
+### 2b. Batteriespeicher — 129
+
+Kuratiert aus energie-experten.org, pv magazine Heimspeicher-Übersicht 2026 und HEMS-Finder (dort sind Wechselrichter- und Speicherhersteller in einer Kategorie gemischt):
+
+- BYD
+- Pylontech
+- Tesla
+- Huawei
+- Sungrow
+- Sigenergy
+- GoodWe
+- Solis / Ginlong
+- Sofar
+- SolaX
+- Deye
+- Fox ESS
+- Alpha ESS
+- Growatt
+- SAJ
+- Sunsynk
+- Dyness
+- WEESS
+- ZCS Azzurro
+- Felicity Solar
+- Anker Solix
+- EcoFlow
+- Zendure
+- Jackery
+- Marstek
+- Bluetti
+- Solakon
+- Maxxisun
+- Suntower
+- Hoymiles
+- E3/DC
+- FENECON
+- Solarwatt
+- SENEC
+- sonnen
+- VARTA Storage
+- RCT Power
+- SMA
+- Fronius
+- KOSTAL
+- AXITEC
+- IBC Solar
+- neoom
+- SAX Power
+- TESVOLT
+- VoltStorage
+- BMZ
+- HPS Home Power Solutions
+- aentron
+- BlueSky Energy
+- INTILION
+- Caterva
+- Storion Energy
+- Jenabatteries
+- BAE Batterien
+- Exide
+- CMBlu
+- Powertrust
+- ASD Automatic Storage Device
+- HYCUBE
+- ads-tec
+- PIXII
+- Deutsche Energieversorgung
+- Albatech
+- Qcells
+- LG
+- Victron Energy
+- GivEnergy
+- Afore
+- Studer Innotec
+- Vitron]
+- SolaX Power
+- Delta
+- SolarEdge
+- Solarmax
+- Solis
+- Varta
+- ABB / Fimer
+- Advanced Energy
+- Canadian Solar
+- Kaco
+- Steca / Kontron Solar
+- APsystems
+- RCT
+- TAB
+- Enphase
+- SAX
+- Schneider Electric
+- Smart me
+- Sonnenkraft
+- Yaskawa Solectria Solar
+- AEG
+- AUSTA
+- Azzurro
+- Ginlong
+- Kontron Solar
+- M-TEC
+- Prolux
+- Smatrfox
+- Solplanet
+- ZCS
+- AISWEI
+- ALPHA-SOL
+- APROS Solar Technology
+- Altenergy Power System
+- Anker
+- Astronergy
+- Autarco
+- Azzurro Inverter
+- Benning
+- Bosswerk
+- CE+T
+- Danfoss Solar
+- Elgris
+- Eltek
+- FerroAmp
+- GREENROCK
+- Gridcon
+- Innovenergy
+- Intillion
+- Oztek Corp
+- Powerdog
+- Q.HOME
+- Rui
+- Strong Energy
+- Sunova
+- UCanPower
+- Viessmann
+- a-TroniX
+
+PV-Modul-Hersteller (ergänzend, wenn Module mit betrachtet werden): LONGi, JinkoSolar, Trina Solar, JA Solar, Canadian Solar, Risen, Huasun, Tongwei, DAS Solar, Astronergy, Seraphim, HT-SAAE, Meyer Burger, Qcells/Hanwha, Aleo Solar, Solarwatt, AXITEC, Isosolar, Avancis, Maxeon, First Solar/Calyxo.
+
+
+## 3. Wallboxen / Ladestationen — 168
+
+HEMS-Finder (140) ∪ ladecloud.io (78) ∪ bekannte Anbieter:
+
+- ABL
+- Compleo
+- ABB
+- Alfen
+- Phoenix Contact
+- go-e
+- GARO
+- Hardy Barth
+- Heidelberg
+- Schneider Electric
+- Viessmann
+- easee
+- Mennekes
+- alpitronic
+- Delta
+- Entratek
+- Etrel
+- LADE
+- PCE
+- Wallbox
+- Walther-Werker
+- Webasto
+- Weidmüller
+- Autel
+- Bender
+- Cubos
+- E3DC
+- EM2GO
+- Hesotech
+- SENEC
+- Smart-me
+- Smartfox
+- TinkerForge
+- Vestel
+- BMW
+- Charge Amps
+- EATON
+- EVBox
+- EVTAP
+- JUICE
+- KOSTAD UNITY
+- Pracht
+- Raedian
+- Technivolt
+- Wallbe
+- Zaptec
+- echarge
+- openWB
+- sun2wheel
+- APsystems
+- Alphatec
+- Amperfied
+- Audi
+- Autoaid
+- Berger
+- Cupra
+- DaheimLaden
+- E.ON
+- EWE Go
+- Elli
+- Evect
+- Fronius
+- GL Charge GlowBox
+- Hager
+- Homecharge
+- Honda
+- LadeFoxx
+- NRGkick
+- Optec / Garo
+- Peblar
+- Porsche
+- SMA
+- Scapo
+- Schrack
+- Skoda
+- SolarEdge
+- Sonnen
+- Spelsberg
+- Tesla
+- Volkswagen
+- cFos eMobility
+- ies
+- neoom
+- AMPURE
+- Benning
+- Clemap
+- Compleo / Innogy
+- Dadapower
+- Dazebox
+- ESL
+- EV body
+- EVSE
+- EVTEC AG
+- EcoHarmony
+- Edgetech
+- Elinta Charge
+- Enelion
+- Enercab
+- Enovates
+- Ensto
+- Fox ESS
+- Free2move
+- INRO
+- Innogy
+- KREISEL Electric
+- Kathrein KWB
+- Kathrein eMobility
+- Kostal
+- Metron
+- NeCharge
+- OBO Bettermann
+- OCPP
+- OpenEVSE
+- Optec
+- Orbis
+- PANTABOX
+- POWERJames
+- PUMP
+- Partino
+- Pulsares
+- SOLARWATT
+- Siemens
+- Sigenergy
+- Solax
+- Sungrow
+- TechniSat
+- Teltonika
+- Tigo
+- Ubitricity
+- Victron Energy
+- Zerova
+- ctek
+- ebee
+- ecotap
+- i-CHARGE
+- myenergy
+- wallbox GmbH
+- Elli (VW)
+- myenergi
+- Ohme
+- Juice Technology
+- Ambibox
+- Enphase
+- Elmi Power
+- XCharge
+- Stöhr
+- Rheinmetall
+- RZB Energy
+- PION
+- Dezony
+- Amina
+- Lektri
+- WEEYU
+- VOITAS
+- Berner
+- Blaupunkt
+- Bauer
+- HAPO Energy
+- IO Charger
+- Joint
+- Eta Plus
+- FBT New Energy
+- getpower
+- Elexon
+- ECONG
+- VTS eCharge
+- Technagon
+- Kontron / Steca
+
+Hinweis nach oben: evcc dokumentiert >120 anbindbare Wallbox-Marken — für eine Vollständigkeits-Obergrenze das evcc-Integrationsverzeichnis (docs.evcc.io) heranziehen. OCPP-fähige Säulen sind praktisch unbegrenzt; relevant fürs Benchmark sind die PV-/EEBus-/OCPI-fähigen Heim-Wallboxen.
+
+## 4. Wärmepumpen — 88
+
+HEMS-Finder (56 mit Anbindungsrelevanz, mit Gerätezahl in den Rohdaten) ∪ energie-experten.org A–Z ∪ DGWZ-Verzeichnis:
+
+- Alpha Innotec
+- tecalor
+- Stiebel Eltron
+- Viessmann
+- NIBE
+- KNV
+- CTC
+- Vaillant
+- Hoval
+- Mitsubishi
+- iDM
+- Buderus
+- Bosch
+- M-TEC
+- Wolf
+- Panasonic
+- Weishaupt
+- AEG Haustechnik
+- Daikin
+- LG
+- Nefit
+- Dimplex
+- Kronoterm
+- Novelan
+- Oertli
+- Roth Werke
+- Saunier Duval
+- Waterkote
+- 1 Eco Design GmbH
+- Akvaterm
+- Andivi
+- Broetje
+- CTA
+- Ecoforest
+- Heliotherm
+- Junkers
+- LAMBDA
+- Ochsner
+- PEGO
+- Remeha
+- S+W
+- SONNENKRAFT
+- Samsung
+- Schneider Electric
+- Siemens
+- Solvis
+- Thermotion
+- Worcester Bosch
+- aqotec
+- heatrex
+- Waterkotte
+- Kermi
+- Austria Email
+- Acalor
+- Aira
+- AISIN
+- Atlantic
+- Beglau
+- Consolar
+- Drexel + Weiss
+- Dürr thermea
+- Gorenje
+- Guangdong New Energy / Newntide
+- HIDROS
+- MHG Heiztechnik
+- REMKO
+- SmartHeat
+- SOLARFOCUS
+- TEDOM
+- Thermia
+- Yanmar
+- Midea
+- Hisense
+- Haier
+- Phnix
+- ROTEX (Werk stillgelegt)
+- Ygnis
+- Nilan
+- ratiotherm
+- Michl Technik
+- emcal
+- ELCO
+- Kampmann
+- Trane
+- Carrier
+- Stulz
+- Systemair
+- FläktGroup
+
+Das DGWZ-Verzeichnis enthält zusätzlich Dutzende Kleinst-/Nischenhersteller und Kälte-Klima-Firmen ohne HEMS-Schnittstelle. Asien-OEMs (Guangdong New Energy/Newntide, Phnix, Midea, Haier, Hisense) drängen als Preisdrücker in den deutschen Markt. SG-Ready/EEBus-Ansteuerbarkeit ist für den Benchmark das entscheidende Kriterium, nicht die Markenliste allein.
+
+## Quellen
+- https://hems-finder.org/ (API: /api/hems, /api/hardware, /api/features)
+- https://www.pv-magazine.de/marktuebersichten/hems/ · …/marktuebersicht-batteriespeicher-fuer-photovoltaikanlagen/ · …/marktuebersicht-elektroauto-ladeloesungen/
+- https://dezentralo.com/blog/home-energy-management-systeme-im-vergleich (Auswertung HEMS-Finder 13.10.2026, Plattform-Zuordnungen)
+- https://reduco.ai/blog/solar/energiemanagementsystem-hems-vergleich
+- https://ladecloud.io/ladestationen (78 Wallbox-Hersteller)
+- https://www.energie-experten.org/heizung/waermepumpe/hersteller · …/photovoltaik/stromspeicher/hersteller
+- https://echtsolar.de/wechselrichterhersteller/ (Wood-Mackenzie-Ranking 2026)

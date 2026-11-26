@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMS-Benchmark — Unabhängiger Energiemanagement Benchmark</title>
+<style>
+:root{--ink:#15181d;--muted:#68707c;--line:#e7e9ee;--bg:#fff;--accent:#2f6fed}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:16px/1.65 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+::selection{background:#cddcff}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+
+/* ---------- Header ---------- */
+header{position:sticky;top:0;background:rgba(255,255,255,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);z-index:50}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-weight:800;font-size:16px;letter-spacing:-.2px;display:flex;align-items:center;gap:8px}
+.logo .z{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#ffb800,#ff8a00);display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:#fff;box-shadow:0 2px 8px rgba(255,160,0,.35)}
+nav{display:flex;gap:4px}
+nav button{background:none;border:none;font:inherit;font-size:14.5px;color:var(--muted);cursor:pointer;padding:8px 14px;border-radius:99px;transition:all .25s}
+nav button:hover{color:var(--ink);background:#f3f5f8}
+nav button.on{color:#fff;background:var(--ink)}
+
+/* ---------- Hero ---------- */
+.hero{padding:64px 0 8px}
+.hero h1{font-size:clamp(34px,6vw,64px);line-height:1.05;letter-spacing:-1.8px;font-weight:800;margin:0 0 18px;max-width:900px}
+.hero h1 .hl{background:linear-gradient(120deg,#2f6fed,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{color:var(--muted);font-size:clamp(16px,2.2vw,19px);max-width:720px;margin:0}
+
+/* ---------- Chart ---------- */
+.chartsec{padding:34px 0 10px}
+.chartcard{border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:0 20px 50px -30px rgba(20,30,60,.18);padding:26px 0 0;position:relative;overflow:hidden}
+.charthead{display:flex;align-items:center;gap:14px;padding:0 26px 16px;flex-wrap:wrap}
+.charthead h2{font-size:15px;margin:0;font-weight:700;letter-spacing:.2px}
+.modebadge{font-size:11.5px;font-weight:600;padding:3px 11px;border-radius:99px;background:#fff4dc;color:#8a6100;border:1px solid #f3ddaa;display:none;align-items:center;gap:6px}
+.modebadge.on{display:inline-flex}
+.livebtn{margin-left:auto;font-size:12.5px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 14px;cursor:pointer;transition:all .2s;font-family:inherit}
+.livebtn:hover{border-color:#b9c1cc;color:var(--ink)}
+.scroller{overflow-x:auto;overflow-y:hidden;padding:6px 26px 0;scrollbar-width:thin;scrollbar-color:#cfd6df transparent}
+.scroller::-webkit-scrollbar{height:8px}
+.scroller::-webkit-scrollbar-thumb{background:#cfd6df;border-radius:99px}
+.chart{position:relative;height:420px}
+.grid{position:absolute;left:56px;right:0;border-top:1px dashed #e4e7ec}
+.grid b{position:absolute;left:-52px;top:-9px;width:44px;text-align:right;font-size:11px;font-weight:500;color:#8d95a3}
+.cols{position:absolute;inset:0;display:flex;align-items:flex-end;gap:52px;padding:0 0 54px 56px}
+.col{width:66px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;cursor:pointer;position:relative}
+.col .val{font-weight:800;font-size:14px;font-variant-numeric:tabular-nums;margin-bottom:6px;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
+.col.in .val{opacity:1;transform:none}
+.col .stem{width:100%;border-radius:9px 9px 4px 4px;height:0;transition:height 1s cubic-bezier(.16,1,.3,1);position:relative;box-shadow:inset 0 -18px 26px rgba(255,255,255,.28)}
+.col:hover .stem{filter:saturate(1.15) brightness(1.07)}
+.col .name{position:absolute;bottom:-46px;width:110px;text-align:center;font-size:12px;font-weight:600;color:#3c4350;line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.col:hover .name{color:var(--ink)}
+.chart-hint{text-align:center;color:#a5adba;font-size:12px;padding:10px 0 14px;user-select:none}
+#tip{position:fixed;z-index:99;pointer-events:none;background:#12161c;color:#fff;border-radius:12px;padding:12px 15px;font-size:13px;line-height:1.5;opacity:0;transform:translateY(4px) scale(.97);transition:opacity .18s,transform .18s;box-shadow:0 12px 40px rgba(0,0,0,.35);max-width:260px}
+#tip.on{opacity:1;transform:none}
+#tip .t{font-weight:700;font-size:14px;margin-bottom:4px}
+#tip .big{font-size:21px;font-weight:800;margin:2px 0 6px}
+#tip .k{color:#9aa4b2;margin-right:6px}
+
+/* ---------- Text unterm Diagramm ---------- */
+.explain{padding:34px 0 0;display:grid;grid-template-columns:1.1fr 1fr;gap:20px 44px}
+@media(max-width:820px){.explain{grid-template-columns:1fr}}
+.explain p{color:#3d4450;margin:0;font-size:15.5px}
+.statrow{display:flex;gap:30px;flex-wrap:wrap;margin-top:18px}
+.stat b{display:block;font-size:26px;font-weight:800;letter-spacing:-.5px}
+.stat span{color:var(--muted);font-size:12.5px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ---------- Sections ---------- */
+section{display:none}
+section.on{display:block;animation:fadein .45s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.meth{padding:50px 0 0}
+.meth h1{font-size:clamp(30px,4.5vw,44px);letter-spacing:-1px;font-weight:800;margin:0 0 10px}
+.meth .lead{color:var(--muted);font-size:17px;max-width:700px;margin:0 0 30px}
+.meth h2{font-size:21px;letter-spacing:-.3px;margin:44px 0 10px}
+.meth p{max-width:720px;color:#333a45}
+.fbox{background:#0f1319;color:#c9d6ee;border-radius:14px;padding:18px 22px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;line-height:1.9;overflow-x:auto;margin:20px 0;border:1px solid #1d2430}
+.fbox .kw{color:#ff8a5c}.fbox .var{color:#7dc4ff}.fbox .cm{color:#5d6b80}
+.graphic{background:#f7f9fc;border:1px solid var(--line);border-radius:16px;padding:22px;margin:26px 0}
+.graphic svg{width:100%;height:auto;display:block}
+.glabel{font-size:12.5px;color:var(--muted);text-align:center;margin-top:10px}
+.mit{padding:90px 0 40px;text-align:center}
+.mit h1{font-size:clamp(30px,5vw,50px);letter-spacing:-1px;font-weight:800;margin:0 0 14px}
+.mit p{color:var(--muted);font-size:18px;max-width:560px;margin:0 auto 30px}
+.cta{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;text-decoration:none;font-weight:700;font-size:16px;padding:15px 30px;border-radius:99px;transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s;box-shadow:0 10px 30px -10px rgba(0,0,0,.4)}
+.cta:hover{transform:translateY(-3px);box-shadow:0 18px 40px -12px rgba(0,0,0,.45)}
+.hastep{display:inline-flex;gap:10px;align-items:center;margin-top:26px;color:var(--muted);font-size:14px;background:#f3f5f8;border:1px dashed #c9d0da;padding:10px 18px;border-radius:12px}
+.imp{padding:50px 0}.imp h1{font-size:36px;letter-spacing:-.8px;font-weight:800}
+
+footer{margin:80px 0 40px;color:#9aa1ac;font-size:12.5px;border-top:1px solid var(--line);padding-top:18px}
+.badge-test{display:inline-block;background:#fff4dc;color:#8a6100;border:1px solid #f3ddaa;border-radius:99px;font-size:11px;padding:2px 10px;margin-left:8px;vertical-align:middle;font-weight:600}
+
+/* ---------- Methodik-Baukasten ---------- */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0}
+.steps.four{grid-template-columns:repeat(4,1fr)}
+@media(max-width:860px){.steps,.steps.four{grid-template-columns:1fr}}
+.step{border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px;background:#fff}
+.step .sicon{font-size:26px;margin-bottom:8px}
+.step b{display:block;font-size:15px;margin-bottom:4px}
+.step p{font-size:13.5px;color:var(--muted);margin:0;line-height:1.5}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:4px;background:#f3f5f8;margin:6px 0 10px}
+.toggle button{border:none;background:none;font:inherit;font-size:14px;font-weight:600;color:var(--muted);padding:7px 18px;border-radius:99px;cursor:pointer;transition:all .25s}
+.toggle button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(20,30,60,.12)}
+.formula-chips{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:20px 0}
+.chip{padding:9px 16px;border-radius:12px;font-weight:700;font-size:14.5px}
+.c-imp{background:#fff1ea;color:#c2410c;border:1px solid #ffd9c4}
+.c-exp{background:#eafaf0;color:#15803d;border:1px solid #c9ecd7}
+.c-bat{background:#eef2ff;color:#4338ca;border:1px solid #d6dcff}
+.c-min{background:var(--ink);color:#fff}
+.op{font-size:20px;color:var(--muted);font-weight:700}
+details{border:1px solid var(--line);border-radius:14px;padding:4px 18px;margin:18px 0;background:#fafbfd}
+summary{cursor:pointer;font-weight:700;font-size:14.5px;padding:10px 0}
+.note{font-size:14px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+<div class="logo"><span class="z">⚡</span>EMS-Benchmark<span class="badge-test">Testphase</span></div>
+<nav>
+<button data-t="bench" class="on">Benchmark</button>
+<button data-t="meth">Methodik</button>
+<button data-t="mit">Mitmachen</button>
+<button data-t="imp">Impressum</button>
+</nav>
+</div></header>
+
+<main>
+<!-- ================= BENCHMARK ================= -->
+<section id="s-bench" class="on">
+<div class="hero wrap">
+  <h1>Unabhängiger<br><span class="hl">Energiemanagement</span> Benchmark</h1>
+  <p class="sub">Wie nah bringt dein Heim-EMS die Stromkosten ans physikalische Optimum?
+  Ø-Index aller Community-Messungen je System — Anlagen­größe und PV‑Leistung sind bedeutungslos.</p>
+</div>
+
+<div class="chartsec wrap">
+<div class="chartcard">
+  <div class="charthead">
+    <h2>Ø-Index je HEMS — alle Messungen aller Haushalte</h2>
+    <span class="modebadge" id="modebadge">● Beispieldaten</span>
+    <button class="livebtn" id="livebtn" onclick="toggleMode()">Live-Daten anzeigen</button>
+  </div>
+  <div class="scroller" id="scroller"><div class="chart" id="chart"></div></div>
+  <div class="chart-hint" id="hint">⇄&nbsp; seitlich scrollen für weitere Systeme</div>
+</div>
+</div>
+
+<div class="wrap explain">
+  <div>
+    <p><b>Was der Index bedeutet:</b> Jeder teilnehmende Haushalt vergleicht täglich die eigenen
+    Stromkosten mit dem mathematisch kostenminimalen Fahrplan, der an diesem Tag mit exakt
+    derselben Anlage möglich gewesen wäre. <b>100&nbsp;% = optimal</b> — kein System hätte günstiger
+    fahren können. Der Balken zeigt den Durchschnitt <b>aller</b> Messungen eines HEMS über alle
+    Haushalte und Tage hinweg. Fahre mit der Maus über eine Säule für Reichweite und Spanne.</p>
+  </div>
+  <div>
+    <p><b>Warum das fair ist:</b> Das Optimum kennt die reale Wetter- und Preis­lage des Tages,
+    aber nur die Physik der eigenen Anlage — Lade­leistungen, Speicher­grenzen, Geräte­grenzen.
+    Ein Haus mit 20&nbsp;kWp bekommt damit ein ebenso großes Optimum wie eines mit 5&nbsp;kWp.
+    Verglichen wird ausschließlich die Steuerungs­qualität.
+    <a href="#" onclick="goTab('meth');return false" style="color:var(--accent)">Details in der Methodik&nbsp;→</a></p>
+    <div class="statrow" id="statrow"></div>
+  </div>
+</div>
+</section>
+
+<!-- ================= METHODIK ================= -->
+<section id="s-meth" class="meth wrap">
+  <h1>Methodik</h1>
+  <p class="lead">Ganz einfach: Das Add-on zeichnet einen Tag lang auf, was dein Haus wirklich getan hat —
+  und berechnet, was am selben Tag mit <b>derselben Anlage</b> billigstenfalls möglich gewesen wäre.
+  Aus beiden Zahlen entsteht der Index.</p>
+
+  <div class="steps">
+    <div class="step"><div class="sicon">📏</div><b>1 · Messen</b><p>PV, Netzanschlusspunkt, Hausverbrauch, Wärmepumpe, Wallbox, Speicher und Strompreise — minutengenau, 24&nbsp;Stunden lang.</p></div>
+    <div class="step"><div class="sicon">🧮</div><b>2 · Optimum berechnen</b><p>Ein Mathematik-Solver plant den perfekten Tag mit Rückblick: exakt deine Technik, exakt dieselben Leistungsgrenzen, reale Preise.</p></div>
+    <div class="step"><div class="sicon">🎯</div><b>3 · Index bilden</b><p>Index&nbsp;=&nbsp;Optimum&nbsp;÷&nbsp;real. 100&nbsp;% heißt: kein Cent war verschenkbar. Alles darunter ist gemessenes Sparpotenzial.</p></div>
+  </div>
+
+  <h2>Ein Tag im Optimum — Sommer und Winter</h2>
+  <p>Das Optimum verschiebt alles Verschiebbare in die billigsten Stunden — und zwar in harten Blöcken,
+  denn Wärmepumpen und Wallboxen können nicht auf halber Leistung stehen. Der Strompreis (orange,
+  <b>treppenartig</b> — echte dynamische Tarife ändern sich stundengenau, nicht fließend) ist die
+  Landkarte dazu. Die untere Zeile zeigt, was die Batterie dabei tut: oberhalb der Nulllinie lädt sie,
+  darunter entlädt sie.</p>
+  <div class="toggle" id="seasonToggle">
+    <button class="on" data-s="summer">☀️&nbsp; Sommertag</button>
+    <button data-s="winter">❄️&nbsp; Wintertag</button>
+  </div>
+  <div class="graphic" id="daychart"></div>
+  <div class="glabel" id="daylabel"></div>
+
+  <h2>Die Optimierungsfunktion — in Menschenworten</h2>
+  <p>In jeder Minute des Tages entscheidet das Optimum über genau vier Hebel. Jede Minute kostet oder
+  bringt Geld; addiert über den Tag soll am Ende so wenig wie möglich übrig bleiben:</p>
+  <div class="formula-chips">
+    <span class="chip c-imp">Bezug: Preis&nbsp;×&nbsp;kWh aus dem Netz</span>
+    <span class="op">−</span>
+    <span class="chip c-exp">Vergütung&nbsp;×&nbsp;kWh ins Netz</span>
+    <span class="op">+</span>
+    <span class="chip c-bat">5&nbsp;ct&nbsp;×&nbsp;kWh durch die Batterie</span>
+    <span class="op">→</span>
+    <span class="chip c-min">über 24&nbsp;h minimieren</span>
+  </div>
+  <p class="note">Der kleine Verschleiß-Aufschlag verhindert, dass die Batterie für halbe Cent hin und
+  her zykelt — das Optimum bleibt ehrlich, nicht nur rechnerisch gut.</p>
+
+  <details><summary>Für Neugierige: die Formel im Detail</summary>
+  <p>Der Tag wird in <i>T</i> Slots der Länge Δt zerlegt (Standard: 1 Minute, 1440 Slots). In jedem
+  Slot <i>t</i> werden Netz- und Speicherleistungen optimiert:</p>
+  <div class="fbox"><span class="kw">minimize</span>  Σ<span class="var"><sub>t=1..T</sub></span> [ <span class="var">λ<sub>t</sub>·g<sub>t</sub></span> − <span class="var">μ<sub>t</sub>·e<sub>t</sub></span> + <span class="var">κ·(c<sub>t</sub> + d<sub>t</sub>)</span> ] · Δt
+
+<span class="cm">λₜ  Arbeitspreis Netzbezug (ct/kWh)      gₜ  Netzbezug (kW)
+μₜ  Einspeisevergütung (ct/kWh)          eₜ  Einspeisung (kW)
+κ   Verschleißaufschlag (€/kWh)       cₜ/dₜ  Speicher lad./entlad. (kW)</span></div>
+  <div class="fbox"><span class="kw">subject to</span>   <span class="cm">für alle Slots t</span>
+
+  <span class="var">pv<sub>t</sub> + g<sub>t</sub> + d<sub>t</sub> = L<sub>t</sub> + e<sub>t</sub> + c<sub>t</sub> + w<sub>t</sub> + h<sub>t</sub></span>     <span class="cm">· Energiebilanz je Slot</span>
+  <span class="var">E<sub>t+1</sub> = E<sub>t</sub> + η·c<sub>t</sub>·Δt − d<sub>t</sub>·Δt/η</span>                <span class="cm">· Speicherdynamik mit Wirkungsgrad η</span>
+  <span class="var">E<sub>min</sub> ≤ E<sub>t</sub> ≤ E<sub>max</sub>,   E<sub>0</sub> = E<sub>T</sub> = 50 %</span>         <span class="cm">· geschlossenes Tagesexperiment</span>
+  <span class="var">Σ h<sub>t</sub>·Δt = W<sub>WP</sub>,   h<sub>t</sub> ∈ {0} ∪ [p̲<sub>WP</sub>, p̄<sub>WP</sub>]</span>       <span class="cm">· WP: gemessene Wärmemenge, frei</span>
+                                       <span class="cm">  verschiebbar, reale Mindestleistung</span>
+  <span class="var">Σ w<sub>t</sub>·Δt = W<sub>WB</sub>,  w<sub>t</sub> ∈ {0} ∪ [1; 11] kW</span>        <span class="cm">· Wallbox: Energie erhalten, nur im</span>
+                                       <span class="cm">  gemessenen Anwesenheitsfenster</span>
+  <span class="var">0 ≤ g<sub>t</sub>, e<sub>t</sub>, c<sub>t</sub>, d<sub>t</sub> ≤ p̄<sub>Batt</sub></span>              <span class="cm">· Leistungsgrenzen</span></div>
+  <p>Formal handelt es sich um ein <b>gemischt-ganzzahliges lineares Programm (MILP)</b>: Zielfunktion
+  und Bedingungen sind linear; die On/Off-Zustände von Wallbox und Wärmepumpe erzeugen als
+  Ganzzahlvariablen die nicht-konvexen Vereinigungsmengen {0}&nbsp;∪&nbsp;[p̲,&nbsp;p̄]. Gelöst wird mit
+  <b>Branch-and-Bound</b> (Solver HiGHS) bis auf einen Optimalitäts-Gap von 10⁻⁴ — das Ergebnis ist
+  damit nachweislich das globale Optimum, keine Heuristik und keine Simulation.</p>
+  </details>
+
+  <h2>Welche Physik das Optimum einhalten muss</h2>
+  <div class="steps four">
+    <div class="step"><div class="sicon">⚖️</div><b>Energiebilanz</b><p>Jede Minute: Erzeugung + Entladung = Verbrauch + Ladung + Einspeisung. Nichts entsteht, nichts verschwindet.</p></div>
+    <div class="step"><div class="sicon">🔋</div><b>Speicher 50&nbsp;→&nbsp;50</b><p>Der Tag beginnt und endet halb voll — jeder Tag ist ein faires, in sich geschlossenes Experiment.</p></div>
+    <div class="step"><div class="sicon">♨️</div><b>Wärmepumpe</b><p>Genau die real gemessene Wärmemenge — aber frei im Tag verschiebbar, in Blöcken zwischen Mindest- und Maximalleistung.</p></div>
+    <div class="step"><div class="sicon">🚗</div><b>Wallbox</b><p>Genau die real geflossene Ladeenergie — nur in dem Fenster, in dem das Auto wirklich verbunden war.</p></div>
+  </div>
+  <p><b>Warum das eine Garantie ist:</b> Jede reale Fahrweise erfüllt genau diese Bedingungen — also
+  kann kein System der Welt günstiger sein als das Optimum. <i>K</i>*&nbsp;≤&nbsp;<i>K</i><sub>real</sub>,
+  in jedem Haushalt, an jedem Tag. Deshalb kann der Index auch nicht durch „schlaue" Anlagenparameter
+  geschönt werden.</p>
+
+  <h2>Der Index auf einen Blick</h2>
+  <div class="graphic" id="g3"></div>
+  <div class="glabel">Die realen Kosten sind immer die Obergrenze — das Optimum zeigt, wie viel davon hätte übrig bleiben müssen.</div>
+
+  <h2>Fair für jede Anlage</h2>
+  <div class="graphic" id="g4"></div>
+  <div class="glabel">Große und kleine Anlage bekommen ein Optimum, das mit ihren eigenen Möglichkeiten wächst — gemessen wird nur, wie gut jedes Haus seine eigenen ausgeschöpft hat.</div>
+
+  <h2>Rechenweg eines Mess­tages</h2>
+  <div class="graphic" id="g2"></div>
+  <div class="glabel">Aus den gemessenen Leistungssignalen rekonstruiert die Mess-App die Tages-Umgebung,
+  berechnet Optimum und reale Kosten — und meldet an die Community ausschließlich den daraus
+  gebildeten Index. Der Community-Wert je HEMS ist das Mittel <b>aller</b> Tages-Indizes aller
+  Haushalte dieses Systems; defekte Mess­tage filtert ein Qualitäts­gate vorher aus.</div>
+</section>
+
+<!-- ================= MITMACHEN ================= -->
+<section id="s-mit" class="mit wrap">
+  <h1>Dein HEMS fehlt noch.<br>Miss mit. 📟</h1>
+  <p>Nur wer misst, kann vergleichen: Nach der Installation bewertet dein Home Assistant
+  ganz automatisch jeden Tag — und du siehst, wo dein Energiemanagement im Vergleich steht.</p>
+  <a class="cta" href="https://github.com/Jonathan-Sami/ems-benchmark" target="_blank" rel="noopener">
+    Zur Installationsanleitung auf GitHub →</a>
+  <div class="hastep">🏠 &nbsp;In Home Assistant:&nbsp;<b>&nbsp;Einstellungen → Apps → Add‑Ons&nbsp;</b> → „EMS‑Benchmark“ hinzufügen</div>
+</section>
+
+<!-- ================= IMPRESSUM ================= -->
+<section id="s-imp" class="imp wrap">
+  <h1>Impressum</h1>
+  <p><b>[Platzhalter — vor dem öffentlichen Livegang ausfüllen]</b><br>
+  Name / Anschrift<br>E-Mail<br>Verantwortlich für den Inhalt</p>
+  <p style="color:#9aa1ac;font-size:13px">Diese Seite befindet sich in der Testphase und ist
+  vorübergehend nur im lokalen Netzwerk erreichbar.</p>
+</section>
+
+<footer><div class="wrap">EMS-Benchmark — Community-Messung von Home‑Assistant‑Nutzern für
+Home‑Assistant‑Nutzer. Ergebnisse sind Durchschnitte gewerteter Tage einzelner Haushalte.</div></footer>
+</main>
+
+<div id="tip"></div>
+
+<script>
+/* ---------------- Farbwelt ---------------- */
+const BRAND={"E3/DC":"#57a639","FENECON":"#1c64d9","Solarwatt":"#f58220","Fronius":"#e30613",
+"SMA Solar Technology AG":"#00a9a9","SMA":"#00a9a9","Huawei Technologies Deutschland GmbH":"#c7000b",
+"Huawei":"#c7000b","KOSTAL Solar Electric GmbH":"#00529b","GoodWe":"#22b8cf",
+"Sungrow":"#009b77","Sigenergy":"#7c3aed","eigene":"#8a929e","Tinkerforge GmbH":"#f0a000",
+"Enphase Energy":"#3ec6cc","EcoFlow Inc.":"#19c270","Viessmann Holding International GmbH":"#00a550",
+"Tesla Energy":"#cc0000","1KOMMA5° (Heartbeat AI)":"#7a1f8f","byd":"#b8212a"};
+const PALETTE=["#4c6fff","#ff7a45","#13a67a","#a258d6","#d6407a","#0f9b8e","#e0a100","#5b6472","#c75b39","#2f9ed9"];
+function colorFor(nm,i){return BRAND[nm]||PALETTE[i%PALETTE.length]}
+
+/* ---------------- Beispieldaten (Demo, bis genug Live-Hersteller da sind) ---------------- */
+const DEMO=[
+ {hems:"E3/DC",mean_index:0.908,days:1240,homes:41,min_index:0.71,max_index:1.02,last_date:"2026-11-23"},
+ {hems:"FENECON",mean_index:0.871,days:980,homes:33,min_index:0.66,max_index:0.99,last_date:"2026-11-23"},
+ {hems:"Fronius",mean_index:0.843,days:655,homes:28,min_index:0.61,max_index:0.98,last_date:"2026-11-22"},
+ {hems:"Solarwatt",mean_index:0.812,days:742,homes:22,min_index:0.58,max_index:0.97,last_date:"2026-11-23"},
+ {hems:"Huawei",mean_index:0.776,days:531,homes:19,min_index:0.52,max_index:0.96,last_date:"2026-11-21"},
+ {hems:"Sungrow",mean_index:0.741,days:388,homes:14,min_index:0.47,max_index:0.95,last_date:"2026-11-23"},
+ {hems:"Sigenergy",mean_index:0.717,days:203,homes:9,min_index:0.44,max_index:0.94,last_date:"2026-11-20"},
+ {hems:"SMA",mean_index:0.683,days:467,homes:17,min_index:0.41,max_index:0.93,last_date:"2026-11-22"},
+ {hems:"KOSTAL",mean_index:0.642,days:298,homes:11,min_index:0.38,max_index:0.91,last_date:"2026-11-19"},
+ {hems:"GoodWe",mean_index:0.598,days:156,homes:7,min_index:0.33,max_index:0.88,last_date:"2026-11-21"}];
+
+let mode="demo", LIVE=[];
+const $=id=>document.getElementById(id);
+function pct(v){return v==null?"–":(100*v).toFixed(1).replace(".",",")+" %"}
+function fmtN(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,".")}
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+
+/* ---------------- Säulen-Diagramm ---------------- */
+function draw(data){
+ const el=$("chart");const H=420,base=H-54;
+ el.innerHTML="";
+ el.style.minWidth=Math.max(data.length*118,600)+56+"px";
+ for(const g of[0,25,50,75,100]){
+  const y=base-H*0.8*g/100;
+  const d=document.createElement("div");d.className="grid";d.style.top=y+"px";
+  d.innerHTML=`<b>${g} %</b>`;el.appendChild(d)}
+ const cols=document.createElement("div");cols.className="cols";
+ data.forEach((x,i)=>{
+  const c=colorFor(x.hems,i);
+  const col=document.createElement("div");col.className="col";col.style.setProperty("--c",c);
+  const hpx=Math.min(Math.max(x.mean_index??0,0.02),1)*(H*0.8);
+  col.innerHTML=`<div class="val" style="color:${c}">${pct(x.mean_index)}</div>
+   <div class="stem" style="background:${c};box-shadow:inset 0 -30px 40px rgba(255,255,255,.14),0 8px 20px -8px ${c}" data-h="${hpx}"></div>
+   <div class="name">${esc(x.hems)}</div>`;
+  col.addEventListener("mousemove",ev=>showTip(ev,x));
+  col.addEventListener("mouseleave",hideTip);
+  cols.appendChild(col)});
+ el.appendChild(cols);
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  [...cols.querySelectorAll(".col")].forEach((col,i)=>setTimeout(()=>{
+   col.classList.add("in");
+   col.querySelector(".stem").style.height=col.querySelector(".stem").dataset.h+"px"},i*70))}));
+ $("hint").style.visibility=el.scrollWidth>$("scroller").clientWidth?"visible":"hidden";
+ const totD=data.reduce((s,x)=>s+x.days,0),totH=data.reduce((s,x)=>s+x.homes,0);
+ $("statrow").innerHTML=
+  `<div class="stat"><b>${data.length}</b><span>Systeme</span></div>
+   <div class="stat"><b>${fmtN(totH)}</b><span>Haushalte</span></div>
+   <div class="stat"><b>${fmtN(totD)}</b><span>Mess­tage</span></div>`;
+}
+const tip=$("tip");
+function showTip(ev,x){
+ tip.innerHTML=`<div class="t">${esc(x.hems)}</div>
+  <div class="big" style="color:${colorFor(x.hems,0)}">${pct(x.mean_index)} Ø-Index</div>
+  <div><span class="k">Haushalte</span>${x.homes}</div>
+  <div><span class="k">Datenpunkte</span>${fmtN(x.days)} Mess­tage</div>
+  <div><span class="k">Spanne</span>${pct(x.min_index)} – ${pct(x.max_index)}</div>
+  <div><span class="k">letzte Messung</span>${esc(x.last_date||"—")}</div>`;
+ tip.classList.add("on");
+ const w=tip.offsetWidth,h=tip.offsetHeight;
+ let px=ev.clientX+16,py=ev.clientY-h/2;
+ if(px+w>innerWidth-10)px=ev.clientX-w-16;
+ py=Math.max(10,Math.min(py,innerHeight-h-10));
+ tip.style.left=px+"px";tip.style.top=py+"px"}
+function hideTip(){tip.classList.remove("on")}
+document.getElementById("scroller").addEventListener("scroll",hideTip);
+
+/* ---------------- Live-Daten ---------------- */
+async function load(){
+ try{const r=await fetch("api/v1/leaderboard");if(!r.ok)throw 0;
+  LIVE=(await r.json()).leaderboard||[]}catch(e){LIVE=[]}
+ if(mode==="live"&&LIVE.length){$("modebadge").classList.remove("on");
+  $("livebtn").textContent="Beispieldaten anzeigen";draw(LIVE)}
+ else{$("modebadge").classList.add("on");$("livebtn").textContent="Live-Daten anzeigen";draw(DEMO)}
+}
+function toggleMode(){mode=mode==="demo"?"live":"demo";load()}
+
+/* ---------------- Tabs ---------------- */
+function goTab(t){
+ hideTip();
+ document.getElementById("scroller")&&document.getElementById("scroller").scrollTo(0,0);
+ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+ document.querySelectorAll("section").forEach(s=>s.classList.remove("on"));
+ $("s-"+t).classList.add("on");scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>goTab(b.dataset.t));
+
+/* ---------------- Methodik: interaktiver Tagesgraph ---------------- */
+const DAY={
+ summer:{
+  price:[22,20,18,17,17,18,24,30,34,30,22,12,6,4,5,9,14,26,34,38,42,36,30,26],
+  pv:[0,0,0,0,0,0,0.5,2,4,6,7.5,8.5,9,8.5,7,5,3,1,0.2,0,0,0,0,0],
+  wp:[0,0,0,0,0,0,0,0,0,0,0,0,0,1.5,1.5,1.5,0,0,0,0,0,0,0,0],
+  wb:[0,0,0,0,0,0,0,0,0,0,0,6,6,6,6,6,0,0,0,0,0,0,0,0],
+  batt:[0,0,0,0,0,0,0,0,0,2,2,2,2,2,0,0,0,-2,-2,-2,-2,-2,0,0],
+  soc:[50,50,50,50,50,50,50,50,50,54,62,70,78,86,90,90,86,74,64,56,50,50,50,50],
+  ann:[[1.1,64,"①  billige Nacht — nur laden, wenn morgen teurer wird"],
+       [9.6,36,"②  PV-Überschuss: Speicher + Wallbox laden gratis"],
+       [15.4,82,"③  Abendspitze: Speicher entlädt ins Haus"]],
+  label:"Schematischer Sommertag im Optimum: PV-Überschuss lädt Speicher und Wallbox in der Mittags-Preisflaute, zur teuren Abendspitze entlädt der Speicher ins Haus. Der Solver findet genau diese Fahrweise automatisch aus den Messkurven desselben Tages."},
+ winter:{
+  price:[18,16,15,14,14,15,26,38,42,36,28,20,16,14,16,22,34,48,55,52,44,38,32,26],
+  pv:[0,0,0,0,0,0,0,0.2,0.6,1,1.4,1.6,1.5,1.2,0.8,0.3,0,0,0,0,0,0,0,0],
+  wp:[2,2,2,2,2,2,0,0,0,0,0,1.5,1.5,1.5,1.5,0,0,0,0,0,0,0,2,2],
+  wb:[0,0,0,0,0,0,0,0,0,0,0,0,11,11,0,0,0,0,0,0,0,0,0,0],
+  batt:[0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,-2,-2,-2,-2,-2,0,0,0],
+  soc:[50,50,58,66,74,82,82,82,82,82,82,82,82,82,82,80,70,60,50,46,42,42,46,50],
+  ann:[[0.7,64,"①  günstige Nacht: Speicher voll, Haus vorgewärmt"],
+       [10.9,36,"②  Mittags-Preistal: Wallbox lädt das Auto"],
+       [15.9,82,"③  Morgen- & Abendspitze: nichts aus dem Netz holen"]],
+  label:"Schematischer Wintertag: fast keine PV — das Optimum schiebt Wärmepumpen-Wärme, Wallbox-Ladung und Speicherladung in die billigen Nacht- und Mittagsstunden und überbrückt die teuren Morgen- und Abendspitzen aus dem Speicher."}};
+function drawDay(s){
+ const D=DAY[s],W=980,H=560,L=56,R=56;
+ const x0=L,x1=W-R, xs=h=>x0+h/24*(x1-x0);
+ const tY0=44,tY1=300,bY0=346,bY1=516,bMid=(bY0+bY1)/2+10;
+ const kwMax=12,ctMax=60,bMax=3;
+ const yK=v=>tY1-v/kwMax*(tY1-tY0), yC=v=>tY1-v/ctMax*(tY1-tY0);
+ const yB=v=>bMid-v/bMax*(bMid-bY0-8), yS=v=>bY1-v/100*(bY1-bY0);
+ // Preis als TREPPENPFAD (stundengenaue Tarife, keine weiche Kurve)
+ let pp=`M ${xs(0).toFixed(1)} ${yC(D.price[0]).toFixed(1)}`;
+ for(let i=1;i<24;i++)pp+=` L ${xs(i).toFixed(1)} ${yC(D.price[i-1]).toFixed(1)} L ${xs(i).toFixed(1)} ${yC(D.price[i]).toFixed(1)}`;
+ pp+=` L ${xs(24).toFixed(1)} ${yC(D.price[23]).toFixed(1)}`;
+ const pArea=pp+` L ${xs(24).toFixed(1)} ${tY1} L ${xs(0).toFixed(1)} ${tY1} Z`;
+ // PV-Fläche
+ let pv=`M ${xs(0).toFixed(1)} ${yK(D.pv[0]).toFixed(1)}`;
+ D.pv.forEach((v,i)=>{if(i)pv+=` L ${xs(i).toFixed(1)} ${yK(v).toFixed(1)}`});
+ pv+=` L ${xs(24).toFixed(1)} ${yK(D.pv[23]).toFixed(1)} L ${xs(24).toFixed(1)} ${tY1} L ${xs(0).toFixed(1)} ${tY1} Z`;
+ // Geräte-Blöcke {0} ∪ [min,max]
+ const runs=a=>{const r=[];let s=null;a.forEach((v,i)=>{if(v>0&&s===null)s=i;if(v===0&&s!==null){r.push([s,i]);s=null}});if(s!==null)r.push([s,24]);return r};
+ const blocks=(a,color,label)=>runs(a).map(([a1,b1])=>{const v=a[a1];
+  return `<rect x="${(xs(a1)+1).toFixed(1)}" y="${yK(v).toFixed(1)}" width="${(xs(b1)-xs(a1)-2).toFixed(1)}" height="${(tY1-yK(v)).toFixed(1)}" rx="4" fill="${color}" opacity=".85"/>`+
+   (b1-a1>=2?`<text x="${((xs(a1)+xs(b1))/2).toFixed(1)}" y="${(yK(v)+17).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">${label}</text>`:"")}).join("");
+ // Batterie-Balken: laden über, entladen unter der Nulllinie
+ let bars="";D.batt.forEach((v,i)=>{if(!v)return;
+  const y=v>0?yB(v):bMid,h=Math.abs(yB(v)-bMid);
+  bars+=`<rect x="${(xs(i)+1.5).toFixed(1)}" y="${y.toFixed(1)}" width="${(xs(i+1)-xs(i)-3).toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${v>0?'#2f6fed':'#ff6b3d'}" opacity=".9"/>`});
+ // Ladezustand-Linie
+ let soc="";D.soc.forEach((v,i)=>{soc+=(i?" L ":"M ")+`${(xs(i+0.5)).toFixed(1)} ${yS(v).toFixed(1)}`});
+ // Gitter + Achsen
+ let grid="";
+ for(let h=0;h<=24;h+=3)grid+=`<line x1="${xs(h)}" y1="${tY0-8}" x2="${xs(h)}" y2="${bY1}" stroke="#e9edf3"/>`+
+  `<text x="${xs(h)}" y="${H-14}" font-size="11" fill="#98a1af" text-anchor="middle">${h} Uhr</text>`;
+ for(const k of[0,4,8,12])grid+=`<line x1="${x0}" y1="${yK(k)}" x2="${x1}" y2="${yK(k)}" stroke="#eef1f6"/>`+
+  `<text x="${x0-8}" y="${yK(k)+4}" font-size="10.5" fill="#98a1af" text-anchor="end">${k} kW</text>`;
+ for(const c of[20,40,60])grid+=`<text x="${x1+8}" y="${yC(c)+4}" font-size="10.5" fill="#d97a45">${c} ct</text>`;
+ grid+=`<line x1="${x0}" y1="${bMid}" x2="${x1}" y2="${bMid}" stroke="#c9d0da"/>`+
+  `<text x="${x0-8}" y="${bMid+4}" font-size="10.5" fill="#98a1af" text-anchor="end">0</text>`+
+  `<text x="${x0-8}" y="${bY0+10}" font-size="10.5" fill="#98a1af" text-anchor="end">+kW</text>`+
+  `<text x="${x0-8}" y="${bY1-2}" font-size="10.5" fill="#98a1af" text-anchor="end">−kW</text>`;
+ // Annotationen
+ const ann=D.ann.map(([hx,ty,txt],i)=>{const w=txt.length*7.1+26;const x=Math.min(xs(hx),x1-w-4);
+  return `<g opacity="0"><animate attributeName="opacity" to="1" begin="${1+i*0.25}s" dur=".6s" fill="freeze"/>
+   <rect x="${x.toFixed(1)}" y="${ty}" width="${w.toFixed(1)}" height="26" rx="8" fill="#0f1319"/>
+   <text x="${(x+13).toFixed(1)}" y="${ty+17}" font-size="12" fill="#dfe8f6">${txt}</text></g>`}).join("");
+ const legend=`<g transform="translate(${x0},18)" font-size="12" font-weight="600" fill="#333">
+  <rect width="10" height="10" y="1" rx="2" fill="#2fae5e"/><text x="15" y="10">PV</text>
+  <rect x="52" width="10" height="10" y="1" rx="2" fill="#3b82f6"/><text x="67" y="10">Wärmepumpe</text>
+  <rect x="172" width="10" height="10" y="1" rx="2" fill="#a258d6"/><text x="187" y="10">Wallbox</text>
+  <rect x="256" width="10" height="10" y="1" rx="2" fill="#2f6fed"/><text x="271" y="10">Speicher lädt</text>
+  <rect x="376" width="10" height="10" y="1" rx="2" fill="#ff6b3d"/><text x="391" y="10">entlädt</text>
+  <line x1="462" x2="482" y1="6" y2="6" stroke="#ff6b3d" stroke-width="3"/><text x="487" y="10">Netzpreis (Treppen = Tarifstunden)</text>
+  <line x1="722" x2="742" y1="6" y2="6" stroke="#6b7480" stroke-width="2" stroke-dasharray="4 3"/><text x="747" y="10">Ladezustand</text></g>`;
+ $("daychart").innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="animation:fadein .5s ease" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="pvG" x1="0" y1="0" x2="0" y2="1">
+   <stop offset="0" stop-color="#57d977" stop-opacity=".8"/><stop offset="1" stop-color="#57d977" stop-opacity="0"/></linearGradient></defs>
+  ${grid}
+  <path d="${pArea}" fill="#ff6b3d" opacity=".08"/>
+  <path d="${pv}" fill="url(#pvG)"/>
+  ${blocks(D.wp,"#3b82f6","WP")}${blocks(D.wb,"#a258d6","Wallbox")}
+  <path d="${pp}" fill="none" stroke="#ff6b3d" stroke-width="2.6" stroke-dasharray="2600" stroke-dashoffset="2600"><animate attributeName="stroke-dashoffset" to="0" dur="1.6s" fill="freeze"/></path>
+  <path d="${pv.replace(/Z$/,"")}" fill="none" stroke="#2fae5e" stroke-width="2.4" stroke-dasharray="2600" stroke-dashoffset="2600"><animate attributeName="stroke-dashoffset" to="0" dur="1.5s" begin=".15s" fill="freeze"/></path>
+  ${bars}
+  <path d="${soc}" fill="none" stroke="#6b7480" stroke-width="2" stroke-dasharray="5 4" opacity=".95"/>
+  <text x="${x0}" y="${bY0-8}" font-size="11" font-weight="600" fill="#68707c">Batterie: oberhalb der Nulllinie laden, darunter entladen</text>
+  <text x="${x1}" y="${bY0+14}" text-anchor="end" font-size="10.5" fill="#6b7480">Ladezustand 0–100 %</text>
+  ${legend}${ann}</svg>`;
+ $("daylabel").textContent=D.label;
+}
+function makeG3(){
+ const W=980,H=200;
+ return `<svg viewBox="0 0 ${W} ${H}" style="animation:fadein .6s" xmlns="http://www.w3.org/2000/svg">
+  <text x="24" y="56" font-size="14" font-weight="700" fill="#333">real gefahren</text>
+  <rect x="180" y="38" width="600" height="30" rx="9" fill="#c9d0da"/>
+  <text x="792" y="58" font-size="13" fill="#68707c">100 %</text>
+  <text x="24" y="118" font-size="14" font-weight="700" fill="#7c3aed">Optimum</text>
+  <rect x="180" y="100" width="510" height="30" rx="9" fill="#7c3aed"/>
+  <text x="700" y="120" font-size="13" font-weight="700" fill="#7c3aed">85 %</text>
+  <line x1="690" y1="96" x2="690" y2="134" stroke="#7c3aed" stroke-dasharray="4 3"/>
+  <line x1="780" y1="96" x2="780" y2="68" stroke="#c9d0da" stroke-dasharray="4 3"/>
+  <text x="700" y="158" font-size="12.5" fill="#68707c">↕ 15 % Sparpotenzial — genau diese Lücke misst der Benchmark</text>
+  <text x="180" y="188" font-size="17" font-weight="800" fill="#15181d">Index = Optimum ÷ real = 85 %</text>
+ </svg>`}
+function makeG4(){
+ const W=980,H=240;
+ const card=(x,t,s1,s2,idx,pvpx)=>`<g>
+  <rect x="${x}" y="20" width="300" height="196" rx="16" fill="#fff" stroke="#dfe4ec"/>
+  <text x="${x+150}" y="56" text-anchor="middle" font-size="30">${"🏠"}</text>
+  <rect x="${x+150-pvpx/2}" y="70" width="${pvpx}" height="9" rx="4" fill="#57d977"/>
+  <text x="${x+150}" y="106" text-anchor="middle" font-size="14" font-weight="700" fill="#15181d">${t}</text>
+  <text x="${x+150}" y="128" text-anchor="middle" font-size="12.5" fill="#68707c">${s1}</text>
+  <text x="${x+150}" y="148" text-anchor="middle" font-size="12.5" fill="#68707c">${s2}</text>
+  <text x="${x+150}" y="192" text-anchor="middle" font-size="24" font-weight="800" fill="#7c3aed">${idx}</text>
+  <text x="${x+150}" y="208" text-anchor="middle" font-size="11" fill="#98a1af">Index</text></g>`;
+ return `<svg viewBox="0 0 ${W} ${H}" style="animation:fadein .6s" xmlns="http://www.w3.org/2000/svg">
+  ${card(120,"Haus A · 20 kWp PV","Optimum 4,20 € · real 4,90 €","Viel zu verschieben — viel Latte","86 %",180)}
+  ${card(560,"Haus B · 5 kWp PV","Optimum 1,60 € · real 1,86 €","Wenig zu verschieben — kleine Latte","86 %",52)}
+  <text x="490" y="128" text-anchor="middle" font-size="22" fill="#c9d0da">=</text>
+ </svg>`}
+function makeG2(){
+ const W=980,H=240;
+ const box=(x,y,w,h,t,s,c,d)=>`<g opacity="0"><animate attributeName="opacity" to="1" begin="${d}s" dur=".5s" fill="freeze"/>
+  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="#fff" stroke="#dfe4ec"/>
+  <text x="${x+w/2}" y="${y+h/2-3}" text-anchor="middle" font-size="13.5" font-weight="700" fill="${c}">${t}</text>
+  <text x="${x+w/2}" y="${y+h/2+15}" text-anchor="middle" font-size="11" fill="#77808e">${s}</text></g>`;
+ const ar=(x1,y1,x2,y2,l,c,d)=>`<g opacity="0"><animate attributeName="opacity" to="1" begin="${d}s" dur=".4s" fill="freeze"/>
+  <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="2.2"/>
+  <circle cx="${x2}" cy="${y2}" r="3.4" fill="${c}"/>
+  <text x="${(x1+x2)/2}" y="${(y1+y2)/2-8}" text-anchor="middle" font-size="11" font-weight="600" fill="${c}">${l}</text></g>`;
+ return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+ ${box(15,80,130,60,"PV","Sensor", "#2fae5e",".05")}
+ ${box(15,15,130,60,"Netz + Preise","Sensor · λ, μ","#e05a2b",".05")}
+ ${box(300,80,130,60,"Haus · WP · Wallbox","Sensoren","#4a5568",".15")}
+ ${box(300,165,130,60,"Speicher","Sensor · SOC","#2f6fed",".15")}
+ ${box(560,45,170,62,"Optimum","MILP · HiGHS · Beweis","#7c3aed",".45")}
+ ${box(560,150,170,62,"Real","abgerechnete Fahrweise","#4a5568",".45")}
+ ${box(810,95,150,62,"Index","= K* ÷ K real","#111",".9")}
+ ${ar(145,110,300,110,"pvₜ, Lₜ","#4a5568",".3")}
+ ${ar(145,45,560,66,"λₜ, μₜ, Netz","#e05a2b",".35")}
+ ${ar(365,140,365,165,"","")+""}
+ ${ar(365,165,560,175,"Messwerte","#2f6fed",".5")}
+ ${ar(430,110,560,190,"gemessene Fahrweise","#4a5568",".5")}
+ ${ar(430,95,560,80,"Traces → MILP","#7c3aed",".5")}
+ ${ar(730,76,810,115,"K*","#7c3aed",".95")}
+ ${ar(730,181,810,138,"K real","#4a5568",".95")}
+ </svg>`}
+drawDay("summer");
+$("g3").innerHTML=makeG3();
+$("g4").innerHTML=makeG4();
+$("g2").innerHTML=makeG2();
+document.querySelectorAll("#seasonToggle button").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll("#seasonToggle button").forEach(x=>x.classList.toggle("on",x===b));
+ drawDay(b.dataset.s)});
+
+load();setInterval(load,300000);
+</script>
+</body>
+</html>
