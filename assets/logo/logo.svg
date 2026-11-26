@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- EMS-Benchmark: Dach + Benchmark-Balken -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M84 208 L256 72 L428 208" stroke="#0F172A" stroke-width="30"/>
+    <rect x="132" y="336" width="66" height="96" rx="16" fill="#0F172A"/>
+    <rect x="223" y="288" width="66" height="144" rx="16" fill="#0F172A"/>
+    <rect x="314" y="240" width="66" height="192" rx="16" fill="#10B981"/>
+  </g>
+</svg>

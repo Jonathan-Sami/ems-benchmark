@@ -1,3 +1,5 @@
+<p align="left"><img src="assets/logo/logo.png" width="110" alt="EMS-Benchmark Logo"></p>
+
 # EMS-Benchmark
 
 Unabhängiger Blackbox-Benchmark für Heim-Energiemanagementsysteme (EMS).
