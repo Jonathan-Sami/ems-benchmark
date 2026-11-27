@@ -21,7 +21,7 @@ from benchmark import ha, quality, store, push, userconfig
 from benchmark.manufacturers import MANUFACTURERS
 from benchmark.model import BenchConfig, BatteryConfig, DeviceLimits, DayData, run_day
 
-BENCHMARK_VERSION = "0.5.0"
+BENCHMARK_VERSION = "0.7.1"
 DATA_DIR = os.environ.get("BENCH_DATA", "/data")
 OPTIONS_FILE = os.environ.get("BENCH_OPTIONS", "/data/options.json")
 
@@ -59,16 +59,24 @@ def load_options():
 
 
 def _run_opts_v6(raw: dict) -> dict:
-    """v0.6-Aufklapp-Menues (HEMS/Speicher/Waermepumpe/Wallbox/Tarif) -> internes Schema."""
+    """Deutsche Aufklapp-Menues -> internes Schema.
+
+    v0.7: Zaehler und Wechselrichter sind eigene Menues; die Werte liegen bei
+    aelteren Installationen noch flach im HEMS-Menue (Rueckwaertskompatibilitaet).
+    """
     def s(v):
         return str(v or "").strip()
     h = raw.get("HEMS") or {}
+    zh = raw.get("Zähler") or raw.get("Zaehler") or {}
+    wr = raw.get("Wechselrichter") or {}
     sp = raw.get("Speicher") or {}
     wp = raw.get("Wärmepumpe") or raw.get("Waermepumpe") or {}
     wb = raw.get("Wallbox") or {}
     tf = raw.get("Tarif") or {}
-    res = {"10 Sekunden": 10, "1 Minute": 60, "5 Minuten": 300}.get(
-        s(raw.get("Auflösung", raw.get("Aufloesung"))), 60)
+    res = {
+        "10 Sekunden": 10, "10 Sekunden (rechenintensiv)": 10,
+        "1 Minute": 60, "5 Minuten": 300,
+    }.get(s(raw.get("Auflösung", raw.get("Aufloesung"))), 60)
     modus = s(tf.get("Einspeisung"))
     fix = tf.get("Feste Vergütung in €/kWh (nur bei Einspeisevergütung)")
     eff = float(sp.get("Wirkungsgrad in %", 100))
@@ -81,11 +89,14 @@ def _run_opts_v6(raw: dict) -> dict:
         "price_exp_fixed": ("" if modus == "Direktvermarktung"
                             else ("" if fix is None else str(fix))),
         "entities": {
-            "pv": s(h.get("PV Leistung")),
-            "grid_net": s(h.get("Netz gesamt (negativ = Einspeisung)")),
-            "grid_import": s(h.get("Netz Bezug (nur bei getrennten Sensoren)")),
-            "grid_export": s(h.get("Netz Einspeisung (nur bei getrennten Sensoren)")),
-            "house": s(h.get("Hausverbrauch")),
+            "pv": s(wr.get("PV Leistung") or h.get("PV Leistung")),
+            "grid_net": s(zh.get("Netz gesamt (negativ = Einspeisung)")
+                          or h.get("Netz gesamt (negativ = Einspeisung)")),
+            "grid_import": s(zh.get("Netz Bezug (nur bei getrennten Sensoren)")
+                             or h.get("Netz Bezug (nur bei getrennten Sensoren)")),
+            "grid_export": s(zh.get("Netz Einspeisung (nur bei getrennten Sensoren)")
+                             or h.get("Netz Einspeisung (nur bei getrennten Sensoren)")),
+            "house": s(zh.get("Hausverbrauch") or h.get("Hausverbrauch")),
             "hp": s(wp.get("Sensor")),
             "wb": s(wb.get("Sensor")),
             "wb_connected": s(wb.get("Auto anwesend (Binärsensor)")),
@@ -106,7 +117,7 @@ def _run_opts_v6(raw: dict) -> dict:
         "devices": {
             "ems_product": norm_hems(s(h.get("Hersteller"))),
             "battery_brand": s(sp.get("Hersteller")),
-            "pv_brand": s(h.get("Wechselrichter")),
+            "pv_brand": s(wr.get("Hersteller") or h.get("Wechselrichter")),
             "hp_brand": s(wp.get("Hersteller")),
             "wallbox_brand": s(wb.get("Hersteller")),
         },
@@ -335,6 +346,18 @@ def main():
             push_pending(con, hhid, run_opts(load_options()))
             break
 
+        # Nachpruefung vor dem Push: spaet eingetroffene Messdaten
+        # beruecksichtigen — wurde der Tag im Fruehlauf (00:05) verworfen oder
+        # gar nicht angelegt, wird er hier ein zweites Mal bewertet.
+        yday = dtm.datetime.now(tz).date() - dtm.timedelta(days=1)
+        row = store.day_row(con, yday.isoformat())
+        if row is None or row[2] is None:
+            print(f"{yday}: Nachpruefung — Daten unvollstaendig, neuer Versuch")
+            try:
+                run_one_day(con, run_opts(load_options()), yday, tz)
+            except Exception as e:
+                print(f"{yday}: Nachpruefung ERROR {e}")
+
         # Push zu zufälligem Zeitpunkt im Fenster 00:30–04:30
         # (Lastverteilung des Community-Servers bei vielen Haushalten).
         now = dtm.datetime.now(tz)
@@ -351,11 +374,14 @@ def main():
             time.sleep(wait)
         push_pending(con, hhid, run_opts(load_options()))
 
-        # bis ~00:40 morgens (plus Jitter, damit Rechner nicht synchron rechnen)
+        # bis ~00:05 morgens (plus Jitter, damit Rechner nicht synchron rechnen).
+        # Der fruehe Zeitpunkt ist moeglich, weil die History-Abdeckung des
+        # Vortags um 00:05 bereits abgeschlossen ist; sollte der Tag trotzdem
+        # verworfen werden, greift die Nachpruefung vor dem naechsten Push.
         now = dtm.datetime.now(tz)
         nxt = (now + dtm.timedelta(days=1)).replace(
-            hour=0, minute=40, second=0, microsecond=0) + dtm.timedelta(
-            seconds=random.uniform(0, 900))
+            hour=0, minute=5, second=0, microsecond=0) + dtm.timedelta(
+            seconds=random.uniform(0, 240))
         time.sleep(max((nxt - now).total_seconds(), 60))
 
 

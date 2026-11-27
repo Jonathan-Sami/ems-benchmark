@@ -1,8 +1,9 @@
-"""Ingress-Dashboard fuer den EMS-Benchmark (stdlib, dark theme, Deutsch).
+"""Lokales Dashboard des EMS-Benchmark-Add-ons (Port 8091, auch via Ingress).
 
-Tag/Woche/Monat/Jahr-Auswahl mit Datum, Tageskosten real vs. Optimum, Index,
-Sparpotential, Methodik und eine deutsche Einstellungsseite (Dropdowns).
-Einstellungen landen in /data/user_config.json und ueberleben Updates.
+Zeigt die bewerteten Tage: KPIs, Säulendiagramm, Tabelle und Aktions-Buttons.
+Konfiguration passiert ausschliesslich im nativen HA-Konfigurationsreiter —
+dieses Dashboard ist reine Anzeige. Helles Design im Stil der Community-
+Website (Ink #0F172A, Akzent #10B981), mit Animationen.
 """
 import datetime as dtm
 import json
@@ -12,190 +13,153 @@ import subprocess
 import sys
 import threading
 import urllib.parse
-import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from benchmark import manufacturers, userconfig
+from benchmark import userconfig
 
 _LOCK = threading.Lock()
 _RUN_STATE = {"running": False, "log": [], "started": None}
 _DATA_DIR = os.environ.get("BENCH_DATA", "/data")
 _OPTIONS_FILE = os.environ.get("BENCH_OPTIONS", "/data/options.json")
+SITE_URL = os.environ.get("BENCH_API_URL", "http://192.168.2.213:8090")
+
+LOGO = ('<svg viewBox="0 0 512 512" fill="none" stroke-linecap="round" '
+        'stroke-linejoin="round"><path d="M84 208 L256 72 L428 208" stroke="#0F172A" '
+        'stroke-width="30"/><rect x="132" y="336" width="66" height="96" rx="16" '
+        'fill="#0F172A"/><rect x="223" y="288" width="66" height="144" rx="16" '
+        'fill="#0F172A"/><rect x="314" y="240" width="66" height="192" rx="16" '
+        'fill="#10B981"/></svg>')
 
 CSS = """
-:root{color-scheme:dark}
+:root{--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--bg:#f4f6f9;--card:#ffffff;
+--green:#10b981;--orange:#f97316;--red:#ef4444;--amber:#f59e0b;
+--shadow:0 1px 2px rgba(15,23,42,.05),0 8px 24px -12px rgba(15,23,42,.12)}
 *{box-sizing:border-box}
-body{font:15px/1.5 system-ui,sans-serif;background:#111518;color:#e6e9ec;margin:0;padding:24px}
-h1{font-size:22px;margin:0 0 2px} .sub{color:#8b949e;font-size:13px;margin-bottom:20px}
-.kpis{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:22px}
-.kpi{background:#1b2127;border:1px solid #2b333b;border-radius:10px;padding:14px 18px;min-width:150px}
-.kpi .v{font-size:26px;font-weight:650} .kpi .l{color:#8b949e;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
-.good{color:#3fb950} .mid{color:#d29922} .bad{color:#f85149}
-table{border-collapse:collapse;width:100%;font-size:14px}
-th,td{padding:7px 10px;text-align:right;border-bottom:1px solid #2b333b}
-th{color:#8b949e;font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
-td:first-child,th:first-child{text-align:left}
-tr:hover td{background:#1b2127}
-.card{background:#1b2127;border:1px solid #2b333b;border-radius:10px;padding:18px 20px;margin-bottom:20px}
-button{background:#238636;color:#fff;border:0;border-radius:8px;padding:9px 16px;font-size:14px;cursor:pointer}
-button:hover{filter:brightness(1.12)} button:disabled{background:#30363d;cursor:wait}
-button.sec{background:#30363d}
-select,input[type=date],input[type=text],input[type=number]{background:#0d1117;color:#e6e9ec;border:1px solid #2b333b;border-radius:6px;padding:6px 8px;font-size:14px}
-.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-.controls #range{flex-basis:100%;margin:0}
-.controls .seg{display:inline-flex;border:1px solid #2b333b;border-radius:8px;overflow:hidden}
-.controls .seg button{border-radius:0;background:#0d1117;color:#8b949e;padding:8px 14px}
-.controls .seg button.on{background:#1f6feb;color:#fff}
-.formula{background:#0d1117;border:1px solid #2b333b;border-radius:8px;padding:10px 14px;font-family:ui-monospace,monospace;font-size:13.5px;overflow-x:auto;white-space:pre;color:#a5d6ff}
-details{margin-bottom:10px} summary{cursor:pointer;font-weight:600;font-size:15px;padding:4px 0}
-.note{color:#8b949e;font-size:13px}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px 22px}
-.feld{display:flex;flex-direction:column;gap:3px} .feld label{color:#8b949e;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
-.feld select,.feld input{width:100%}
-h4.sect{color:#58a6ff;margin:16px 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:.5px}
-#runlog,#setlog{font-family:ui-monospace,monospace;font-size:12px;white-space:pre-wrap;color:#8b949e;margin-top:10px}
-svg text{fill:#8b949e;font-size:10px}
-.tscroll{max-height:420px;overflow-y:auto}
-"""
-
-METHodik = """
-<div class="card"><details><summary>📐 Methodik — wie der Benchmark rechnet</summary>
-<p>Der Benchmark bewertet <b>nur die Steuerungsqualität</b> des Energiemanagements, nicht die Größe der Anlage.
-Dazu wird jeder Kalendertag als geschlossenes Experiment behandelt: Aus den gemessenen Sensordaten
-(PV, Netz, Haus, Wärmepumpe, Wallbox, Batterie) rekonstruiert das Add-on die Umgebung des Tages und
-berechnet, was <b>mathematisch optimal</b> gewesen wäre. Der Index setzt die echten Kosten ins Verhältnis dazu.</p>
-<h4>1. Das Optimum (theoretische Kosten-Untergrenze)</h4>
-<p>Ein gemischt-ganzzahliges lineares Programm (MILP, Solver HiGHS) plant den perfekten Tag mit
-Rückblickwissen — in 1-Minuten-Slots:</p>
-<div class="formula">min Σₜ [ λₜ·gₜ − μₜ·eₜ + κ·(cₜ + dₜ)·Δt ]
-
-λₜ = Arbeitspreis Bezugsstrom   μₜ = Einspeisevergütung   gₜ = Netzbezug   eₜ = Einspeisung
-cₜ/dₜ = Batterie lad./entl.     κ = Durchfluss-Aufschlag (Verschleiß)</div>
-<h4>Nebenbedingungen (dieselbe Physik wie das echte System)</h4>
-<div class="formula">Bilanz:      pvₜ + gₜ + dₜ = Lₜ + eₜ + cₜ + wₜ + hₜ
-Speicher:   E(t+Δt) = E(t) + η·cₜ·Δt − dₜ·Δt/η,   E_min ≤ E ≤ E_max
-50/50-Regel: E(Tag Anfang) = E(Tag Ende) = 50 % → jeder Tag ein faires, in sich geschlossenes Experiment
-Wärmepumpe: Σ hₜ·Δt = gemessene Wärmepumpen-Energie;  hₜ ∈ {0} ∪ [p_min; p_max] kW
-Wallbox:    Σ wₜ·Δt = gemessene Ladeenergie;  wₜ ∈ {0} ∪ [p_min; p_max] kW nur im Anwesenheitsfenster</div>
-<p>Da jedes denkbare EMS dieselben Grenzen einhält, ist die MILP-Lösung eine <b>beweisbare Kosten-Untergrenze</b>:
-Was das Optimum nicht schafft, kann kein System schaffen. κ verhindert, dass es mit sinnlosem
-Hin-und-Her-Zykeln die Latte unrealistisch hochlegt.</p>
-<h4>2. Die reale Seite</h4>
-<div class="formula">K_real = Σₜ λₜ·E_Bezug,ₜ − μₜ·E_Einspeisung,ₜ   (direkt aus Netzpunkt + Preisen gemessen)</div>
-<h4>3. Der Index</h4>
-<div class="formula">Index = K_Optimum / K_real
-
-100 % = so gut wie physikalisch optimal   unter 100 % = verschenktes Sparpotential
-Negativ möglich, wenn der Tag durch Einspeisung Gewinn abwerfen könnte (Gewinn-Tage).</div>
-<h4>4. Qualitätsgate pro Tag</h4>
-<p>Ein Tag zählt nur, wenn mindestens 90 % der Zeitscheiben von allen Hauptsensoren
-abgedeckt sind, die Energiebilanz (PV + Bezug ≈ Haus + Wallbox + WP + Einspeisung) plausibel
-schließen kann und Preise vorhanden sind. Verworfene Tage werden im Dashboard ausgewiesen und
-gelangen nie auf den Server.</p>
-<h4>5. Datenschutz</h4>
-<p>Alle Rohdaten bleiben in diesem Haus. An den Community-Server gehen pro Tag ausschließlich:
-der Index, der HEMS-Hersteller und die vier Geräte-Marken — sonst nichts.
-Keine Kosten, kein Stromfluss, keine Zeitreihen, keine Adresse.</p>
-<p class="note">Bewusste Vereinfachungen: Wärmepumpen-Energie darf frei im Tag verschoben werden (misst Preisoptimierung,
-nicht Komfort); Wallbox-Fenster = gemessene Ladezeit.</p>
-</details></div>
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+background-image:radial-gradient(1200px 500px at 85% -160px,rgba(16,185,129,.10),transparent 60%),
+radial-gradient(900px 420px at -10% -140px,rgba(249,115,22,.08),transparent 60%)}
+.wrap{max-width:980px;margin:0 auto;padding:26px 20px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.3px}
+.brand svg{width:30px;height:30px}
+.verchip{font-size:11.5px;font-weight:700;color:var(--mut);background:#fff;border:1px solid var(--line);
+border-radius:99px;padding:2px 10px;margin-left:2px;vertical-align:2px}
+.sitebtn{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:#fff;text-decoration:none;
+font-weight:700;font-size:14.5px;padding:11px 20px;border-radius:99px;
+transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s;box-shadow:0 10px 26px -12px rgba(15,23,42,.5)}
+.sitebtn:hover{transform:translateY(-3px);box-shadow:0 18px 34px -14px rgba(15,23,42,.55)}
+.sitebtn svg{width:16px;height:16px;transition:transform .25s}
+.sitebtn:hover svg{transform:translate(3px,-3px)}
+.sub{color:var(--mut);font-size:13px;margin:-14px 0 22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 22px;
+box-shadow:var(--shadow);margin-bottom:18px;animation:rise .5s cubic-bezier(.16,1,.3,1) both}
+.card:nth-of-type(2){animation-delay:.06s}.card:nth-of-type(3){animation-delay:.12s}.card:nth-of-type(4){animation-delay:.18s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.seg{display:inline-flex;background:#eef1f6;border-radius:99px;padding:3px}
+.seg button{border:0;background:transparent;font:inherit;font-weight:600;font-size:13.5px;color:var(--mut);
+padding:7px 16px;border-radius:99px;cursor:pointer;transition:all .2s}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 6px rgba(15,23,42,.14)}
+.seg button:not(.on):hover{color:var(--ink)}
+input[type=date]{font:inherit;font-size:13.5px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff;color:var(--ink)}
+.note{color:var(--mut);font-size:12.5px}
+.bad{color:var(--red)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:linear-gradient(180deg,#fff,#fbfcfe);border:1px solid var(--line);border-radius:14px;
+padding:14px 16px;transition:transform .2s,box-shadow .2s}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.kpi .v{font-size:24px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12px;color:var(--mut);margin-top:2px}
+.v.good{color:var(--green)}.v.mid{color:var(--amber)}.v.bad{color:var(--red)}
+h3{margin:0 0 12px;font-size:15.5px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px;
+padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid #eef1f6;font-variant-numeric:tabular-nums}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:#f8fafc}
+tbody tr:last-child td{border-bottom:0}
+.tscroll{overflow-x:auto}
+.idx{display:inline-block;min-width:56px;text-align:center;font-weight:700;border-radius:99px;padding:2px 9px;font-size:12.5px}
+.idx.good{background:#d1fae5;color:#065f46}.idx.mid{background:#fef3c7;color:#92400e}.idx.bad{background:#fee2e2;color:#991b1b}
+button.act{border:0;font:inherit;font-weight:700;font-size:14px;border-radius:12px;padding:11px 20px;cursor:pointer;
+transition:transform .2s,box-shadow .2s,opacity .2s}
+button.act.primary{background:var(--green);color:#fff;box-shadow:0 8px 20px -8px rgba(16,185,129,.55)}
+button.act.primary:hover{transform:translateY(-2px);box-shadow:0 14px 26px -10px rgba(16,185,129,.6)}
+button.act.sec{background:#eef1f6;color:var(--ink)}
+button.act.sec:hover{transform:translateY(-2px);background:#e4e9f0}
+button.act:disabled{opacity:.45;cursor:wait;transform:none}
+#runlog{margin-top:12px;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#cbd5e1;background:#0f172a;
+border-radius:12px;padding:12px 14px;white-space:pre-wrap;display:none}
+#runlog.show{display:block;animation:rise .3s both}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.legend{display:flex;gap:18px;font-size:12.5px;color:var(--mut);margin:4px 2px 8px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.bar{transform-box:fill-box;transform-origin:bottom;animation:grow .7s cubic-bezier(.16,1,.3,1) both}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.bar:hover{opacity:1!important;filter:brightness(1.12)}
+svg text{font-size:10.5px;fill:var(--mut)}
+.gridline{stroke:#eef1f6;stroke-width:1}
+.tip{position:fixed;z-index:9;background:var(--ink);color:#fff;font-size:12px;line-height:1.45;border-radius:9px;
+padding:7px 11px;pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;box-shadow:0 8px 24px -8px rgba(15,23,42,.5)}
+.foot{color:var(--mut);font-size:12.5px;text-align:center;margin-top:26px}
+@media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}}
 """
 
 HTML = """<!doctype html><html lang="de"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EMS-Benchmark</title><style>__CSS__</style></head><body>
-<h1>⚡ EMS-Benchmark <span style="font-weight:400;color:#8b949e;font-size:14px">v__VER__</span></h1>
-<div class="sub">Unabhängige Bewertung der Steuerungsqualität · __SUB__</div>
+<title>EMS-Benchmark</title><style>__CSS__</style></head><body><div class="wrap">
+<header>
+ <div class="brand">__LOGO__EMS-Benchmark<span class="verchip">v__VER__</span></div>
+ <a class="sitebtn" href="__SITE__" target="_blank" rel="noopener">Alle Benchmarks sehen
+  <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5H5.06l6.97 6.97a.75.75 0 1 1-1.06 1.06L4 4.56v2.19a.75.75 0 0 1-1.5 0v-4.5a.75.75 0 0 1 .75-.75Z"/><path d="M2 12.25A.75.75 0 0 1 2.75 11.5h10.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z"/></svg></a>
+</header>
+<div class="sub">__SUB__</div>
 
-<div class="card"><div class="controls">
-<span class="seg">
-<button data-p="tag">Tag</button><button data-p="woche" class="on">Woche</button><button data-p="monat">Monat</button><button data-p="jahr">Jahr</button>
-</span>
-<span class="feld"><input type="date" id="anchor"></span>
-<span class="note" id="range"></span>
-</div>
-<div class="kpis" id="kpis"></div>
-<div id="chart"></div>
+<div class="card">
+ <div class="controls">
+  <span class="seg">
+   <button data-p="tag">Tag</button><button data-p="woche" class="on">Woche</button><button data-p="monat">Monat</button><button data-p="jahr">Jahr</button>
+  </span>
+  <input type="date" id="anchor">
+  <span class="note" id="range"></span>
+ </div>
+ <div class="kpis" id="kpis"></div>
+ <div class="legend"><span><i style="background:var(--orange)"></i>Real</span><span><i style="background:var(--green)"></i>Optimum (theoretisch)</span></div>
+ <div id="chart"></div>
 </div>
 
-<div class="card"><h3 style="margin-top:0">Aktionen</h3>
-<button id="b1" onclick="run('yesterday')">Gestern bewerten</button>
-<button id="b2" class="sec" onclick="run('backfill7')">Letzte 7 Tage nachholen</button>
-<span class="note">Automatisch: täglich gegen 00:40 wird der Vortag bewertet.</span>
-<div id="runlog"></div></div>
+<div class="card">
+ <h3>Aktionen</h3>
+ <button class="act primary" id="b1" onclick="run('yesterday')">Gestern bewerten</button>
+ <button class="act sec" id="b2" onclick="run('backfill7')">Letzte 7 Tage nachholen</button>
+ <span class="note">Automatisch: täglich gegen 00:05 wird der Vortag bewertet.</span>
+ <div id="runlog"></div>
+</div>
 
-<div class="card"><h3 style="margin-top:0">Gewertete Tage im Zeitraum</h3>
-<div class="tscroll"><table><tr><th>Datum</th><th>Real</th><th>Optimum</th><th>Sparpotential</th><th>Index</th><th>Speicher-kWh</th><th>Abdeckung</th></tr>
-<tbody id="tb"></tbody></table></div></div>
+<div class="card">
+ <h3>Gewertete Tage im Zeitraum</h3>
+ <div class="tscroll"><table><tr><th>Datum</th><th>Real</th><th>Optimum</th><th>Sparpotential</th><th>Index</th><th>Speicher-kWh</th><th>Abdeckung</th></tr>
+ <tbody id="tb"></tbody></table></div>
+</div>
 
-__METH__
-
-<div class="card"><details id="settings" ontoggle="if(this.open&&!ENT_LOADED)loadEntities()">
-<summary>⚙️ Einstellungen — Geräte, Sensoren, Batterie</summary>
-<p class="note">Diese Werte werden dauerhaft gespeichert (überleben jedes Update) und ersetzen die
-Add-on-Grundkonfiguration. Wirksam ab dem nächsten Lauf.</p>
-<h4 class="sect">Einspeisung</h4>
-<div class="feld"><label style="text-transform:none;font-size:13px">Wie wird eingespeister Strom vergütet?</label>
-<div style="display:flex;gap:22px;margin-top:4px">
-<label style="display:flex;gap:7px;align-items:center;font-size:14px"><input type="radio" name="expmode" id="exp_fix" value="fest" checked> Feste Einspeisevergütung</label>
-<label style="display:flex;gap:7px;align-items:center;font-size:14px"><input type="radio" name="expmode" id="exp_dyn" value="sensor"> Direktvermarktung (Preis-Sensor)</label>
-</div></div>
-<div class="grid2" style="margin-top:10px">
-<div class="feld"><label>Feste Vergütung in €/kWh (z. B. 0.124)</label><input type="text" id="s_pfx"></div>
+<div class="foot">Konfiguration im nativen Konfigurationsreiter von Home Assistant ·
+ Kennzahl: Index = Optimum ÷ Real (100 % = bereits kostenoptimal)</div>
 </div>
-<p class="note">Ohne beide Angaben wird der Bezugspreis angesetzt — die strengste Annahme zugunsten des Optimums.</p>
-<h4 class="sect">Sensoren</h4>
-<div class="grid2" id="sensorfelder"></div>
-<h4 class="sect">Batterie</h4>
-<div class="grid2">
-<div class="feld"><label>Kapazität in kWh</label><input type="number" step="0.1" id="s_cap"></div>
-<div class="feld"><label>Ladeleistung in kW</label><input type="number" step="0.1" id="s_pc"></div>
-<div class="feld"><label>Entladeleistung in kW</label><input type="number" step="0.1" id="s_pd"></div>
-<div class="feld"><label>Wirkungsgrad in % (Anteil Energie, der beim Speichern übrig bleibt)</label><input type="number" step="1" id="s_eta"></div>
-</div>
-<h4 class="sect">Grenzwerte der Geräte</h4>
-<div class="grid2">
-<div class="feld"><label>Wärmepumpe mindestens in kW</label><input type="number" step="0.1" id="s_hpmin"></div>
-<div class="feld"><label>Wärmepumpe höchstens in kW</label><input type="number" step="0.1" id="s_hpmax"></div>
-<div class="feld"><label>Wallbox mindestens in kW (meist 1,1 bzw. 4,7)</label><input type="number" step="0.1" id="s_wbmin"></div>
-<div class="feld"><label>Wallbox höchstens in kW</label><input type="number" step="0.1" id="s_wbmax"></div>
-</div>
-<h4 class="sect">Auflösung der Berechnung</h4>
-<div class="grid2">
-<div class="feld"><label>Zeitachse des Modells</label><select id="s_res"><option value="10 Sekunden">10 Sekunden (sehr rechenintensiv)</option><option value="1 Minute" selected>1 Minute (empfohlen)</option><option value="5 Minuten">5 Minuten (schnell)</option></select></div>
-</div>
-<h4 class="sect">Geräte &amp; Hersteller</h4>
-<div class="grid2">
-<div class="feld"><label>HEMS (getestetes Energiemanagement)</label><input list="mHEMS" id="s_hems"></div>
-<div class="feld"><label>Wechselrichter</label><input list="mWECHSELRICHTER" id="s_pv"></div>
-<div class="feld"><label>Speicher</label><input list="mSPEICHER" id="s_batt"></div>
-<div class="feld"><label>Wärmepumpe</label><input list="mWAERMEPUMPE" id="s_hp"></div>
-<div class="feld"><label>Wallbox</label><input list="mWALLBOX" id="s_wb"></div>
-</div>
-<p><button onclick="saveSettings()">Einstellungen speichern</button>
-<button class="sec" onclick="location.reload()">Verwerfen</button></p>
-<div id="setlog"></div>
-</details></div>
-
+<div class="tip" id="tip"></div>
 <script>
-const DAYS=__DATA__; const SET=__SET__; const MANU=__MANU__;
-const ENT_LABELS={"PV Leistung":"PV Leistung","Netz gesamt (negativ = Einspeisung)":"Netz gesamt (negativ = Einspeisung)","Netz Bezug (nur bei getrennten Sensoren)":"Netz Bezug — nur wenn Bezug/Einspeisung getrennte Sensoren sind","Netz Einspeisung (nur bei getrennten Sensoren)":"Netz Einspeisung — nur bei getrennten Sensoren","Hausverbrauch":"Hausverbrauch (ohne Wallbox)","Wärmepumpe Leistung":"Wärmepumpe (Leistung)","Wallbox Leistung":"Wallbox (Ladeleistung)","Wallbox verbunden (optional)":"Auto anwesend (Binärsensor)","Preis Bezug":"Preis Bezug (€/kWh, dynamischer Tarif)","Preis Einspeisung (nur bei Direktvermarktung)":"Preis Einspeisung (€/kWh, nur bei Direktvermarktung)"};
-const EIDX=Object.keys(ENT_LABELS);
-const eid=k=>'e'+EIDX.indexOf(k);
-const EXKEY="Preis Einspeisung (nur bei Direktvermarktung)";
-let ENT_LOADED=false, HAENT=null;
+const DAYS=__DATA__;
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
 function qclass(q){return q==null?'':(q>=0.85?'good':(q>=0.6?'mid':'bad'))}
 function money(v){return v==null?'–':v.toFixed(2).replace('.',',')+' €'}
 function pct(v){return v==null?'–':(100*v).toFixed(1).replace('.',',')+' %'}
-const PERIOD={tag:1,woche:7,monat:30,jahr:365};
 let period='woche';
 const dates=DAYS.map(d=>d.d).sort();
 const anchorEl=document.getElementById('anchor');
 if(dates.length){anchorEl.value=dates[dates.length-1];anchorEl.min=dates[0];anchorEl.max=dates[dates.length-1];}
 function isoAdd(iso,n){const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
-// Kalenderfenster zum gewählten Datum: Tag=Wochentag, Woche=ISO-Kalenderwoche
-// (Mo–So) um das Datum, Monat=Kalendermonat, Jahr=Kalenderjahr.
 function win(){const a=anchorEl.value||dates[dates.length-1];
  if(period==='tag')return DAYS.filter(d=>d.d===a);
  if(period==='woche'){const d0=new Date(a+'T12:00:00');const dow=(d0.getDay()+6)%7;
@@ -203,19 +167,26 @@ function win(){const a=anchorEl.value||dates[dates.length-1];
   return DAYS.filter(d=>d.d>=mo&&d.d<=so)}
  if(period==='monat')return DAYS.filter(d=>d.d.slice(0,7)===a.slice(0,7));
  return DAYS.filter(d=>d.d.slice(0,4)===a.slice(0,4))}
-function kpi(v,l,c){return `<div class="kpi"><div class="v ${c||''}">${v}</div><div class="l">${l}</div></div>`}
- function kwnum(iso){const d=new Date(iso+'T12:00:00');const t=new Date(d.getFullYear(),0,1);
+function kwnum(iso){const d=new Date(iso+'T12:00:00');const t=new Date(d.getFullYear(),0,1);
  return Math.ceil(((d-t)/864e5+t.getDay()+1)/7)}
- function render(){
+function kpi(v,l,c){return `<div class="kpi"><div class="v ${c||''}">${v}</div><div class="l">${l}</div></div>`}
+// KPI-Zahlen animiert hochzaehlen lassen
+function countUp(){document.querySelectorAll('.kpi .v').forEach(el=>{
+ const m=el.textContent.match(/^([\\d.,]+)(.*)$/);if(!m)return;
+ const target=parseFloat(m[1].replace(',','.'));if(isNaN(target))return;
+ const suf=m[2],dec=(m[1].split(',')[1]||'').length,t0=performance.now(),D=650;
+ (function step(t){const p=Math.min((t-t0)/D,1),e=1-Math.pow(1-p,3),val=(target*e).toFixed(dec).replace('.',',');
+  el.textContent=val+suf;if(p<1)requestAnimationFrame(step)})(t0)})}
+function render(){
  const w=win();const qd=w.filter(d=>d.q!=null);
- const sk=w.filter(d=>d.q==null&&d.o==null);   // vom Qualitätsgate verworfen
+ const sk=w.filter(d=>d.q==null&&d.o==null);
  let rl='';
  if(w.length){rl=`${w[0].d} bis ${w[w.length-1].d} · ${qd.length} gewertete Tage`;
-  if(sk.length)rl+=` · ⚠ ${sk.length} Tag(e) verworfen: Sensorabdeckung unter 90 %, nicht gewertet und nicht übertragen`;
+  if(sk.length)rl+=` · <span class="bad">⚠ ${sk.length} Tag(e) verworfen: Sensorabdeckung unter 90 %, nicht gewertet und nicht übertragen</span>`;
   if(period==='woche')rl=`KW ${kwnum(anchorEl.value)} · `+rl;
   else if(period==='monat')rl=anchorEl.value.slice(0,7)+' · '+rl;
   else if(period==='jahr')rl=anchorEl.value.slice(0,4)+' · '+rl;}
- document.getElementById('range').innerHTML=esc(rl).replace('⚠','<span class="bad">⚠').replace('übertragen','übertragen</span>');
+ document.getElementById('range').innerHTML=rl;
  let k='';
  if(period==='tag'){const d=w[0];
   k=kpi(pct(d?d.q:null),'Index',d?qclass(d.q):'')+kpi(money(d?d.r:null),'Real')+kpi(money(d?d.o:null),'Optimum')+kpi(money(d?(d.r-d.o):null),'Sparpotential');
@@ -224,131 +195,59 @@ function kpi(v,l,c){return `<div class="kpi"><div class="v ${c||''}">${v}</div><
   const sr=w.reduce((s,d)=>s+(d.r||0),0),so=w.reduce((s,d)=>s+(d.o||0),0);
   k=kpi(pct(avg),`Ø Index (${qd.length} Tage)`,qclass(avg))+kpi(money(sr),'Real Σ')+kpi(money(so),'Optimum Σ')+kpi(money(sr-so),'Sparpotential Σ');
  }
- document.getElementById('kpis').innerHTML=k;
+ document.getElementById('kpis').innerHTML=k;countUp();
  chart(w);
  document.getElementById('tb').innerHTML=w.slice().reverse().map(d=>
   (d.q==null&&d.o==null)
   ?`<tr><td>${d.d}</td><td colspan="6" class="bad" style="text-align:left">verworfen — Sensorabdeckung unter 90 % (nicht gewertet, nicht übertragen)</td></tr>`
-  :`<tr><td>${d.d}</td><td>${money(d.r)}</td><td>${money(d.o)}</td><td>${money((d.r!=null&&d.o!=null)?d.r-d.o:null)}</td><td class="${qclass(d.q)}">${pct(d.q)}</td><td>${d.th??''}</td><td>${d.cov??''}</td></tr>`).join('')
+  :`<tr><td>${d.d}</td><td>${money(d.r)}</td><td>${money(d.o)}</td><td>${money((d.r!=null&&d.o!=null)?d.r-d.o:null)}</td><td><span class="idx ${qclass(d.q)}">${pct(d.q)}</span></td><td>${d.th??''}</td><td>${d.cov??''}</td></tr>`).join('')
   ||'<tr><td colspan="7">Keine gewerteten Tage im Zeitraum.</td></tr>';
 }
+const tip=document.getElementById('tip');
+function showTip(ev,html){tip.innerHTML=html;tip.style.opacity=1;
+ const r=tip.getBoundingClientRect();
+ tip.style.left=Math.min(ev.clientX+14,innerWidth-r.width-8)+'px';
+ tip.style.top=Math.max(ev.clientY-r.height-10,8)+'px'}
+function hideTip(){tip.style.opacity=0}
 function chart(rows){
- // bei >31 Tagen auf Kalendermonate aggregieren
  let bars=rows;let monthly=false;
  if(rows.length>31){monthly=true;const m={};
-  rows.forEach(d=>{const k=d.d.slice(0,7);(m[k]=m[k]||{d:k,r:0,o:0,n:0});m[k].r+=d.r||0;m[k].o+=d.o||0;m[k].n++});
-  bars=Object.values(m)}
- if(!bars.length){document.getElementById('chart').innerHTML='<p class="note">Noch keine Daten — erster Lauf automatisch um 00:40 oder Button unten.</p>';return}
+  rows.forEach(d=>{const k=d.d.slice(0,7);(m[k]=m[k]||{d:k,r:0,o:0,n:0,q:0,nq:0});m[k].r+=d.r||0;m[k].o+=d.o||0;m[k].n++;if(d.q!=null){m[k].q+=d.q;m[k].nq++}});
+  bars=Object.values(m).map(b=>({...b,q:b.nq?b.q/b.nq:null}))}
+ if(!bars.length){document.getElementById('chart').innerHTML='<p class="note">Noch keine Daten — erster Lauf automatisch um 00:05 oder mit „Gestern bewerten“.</p>';return}
  const maxc=Math.max(...bars.map(b=>Math.max(b.r||0,b.o||0)),1);
- const n=bars.length;const total=Math.min(Math.max(Math.floor((n?700:700)/(2*n+8)),14),30);
- const bw=total,gap=6,W=n*(2*bw+gap)+40,H=140;let s='';
- bars.forEach((b,i)=>{const x=30+i*(2*bw+gap);
-  const hr=Math.max((b.r||0)/maxc,0.003)*(H-30),ho=Math.max((b.o||0)/maxc,0.003)*(H-30);
-  s+=`<rect x="${x}" y="${H-20-hr}" width="${bw}" height="${hr}" fill="#f0883e" opacity="0.85"/>`;
-  s+=`<rect x="${x+bw}" y="${H-20-ho}" width="${bw}" height="${ho}" fill="#58a6ff" opacity="0.85"/>`;
+ const n=bars.length;const bw=Math.min(Math.max(Math.floor(700/(2*n+8)),14),30);
+ const gap=6,W=n*(2*bw+gap)+46,H=190,PB=26;let s='';
+ for(let g=1;g<=3;g++){const y=PB+(H-PB-24)*g/4;s+=`<line class="gridline" x1="36" x2="${W-6}" y1="${y}" y2="${y}"/>`}
+ s+=`<text x="30" y="${PB+6}" text-anchor="end">${maxc.toFixed(1)} €</text>`;
+ s+=`<text x="30" y="${H-20}" text-anchor="end">0</text>`;
+ bars.forEach((b,i)=>{const x=40+i*(2*bw+gap);
+  const hr=Math.max((b.r||0)/maxc,0.004)*(H-PB-26),ho=Math.max((b.o||0)/maxc,0.004)*(H-PB-26);
+  const tt=`${b.d}<br>real: <b>${money(b.r)}</b><br>Optimum: <b>${money(b.o)}</b>`+(b.q!=null?`<br>Index: <b>${pct(b.q)}</b>`:'');
+  s+=`<rect class="bar" style="animation-delay:${i*40}ms" x="${x}" y="${H-PB-hr}" width="${bw}" height="${hr}" rx="4" fill="var(--orange)" opacity=".88" data-tip="${esc(tt)}"/>`;
+  s+=`<rect class="bar" style="animation-delay:${i*40+20}ms" x="${x+bw}" y="${H-PB-ho}" width="${bw}" height="${ho}" rx="4" fill="var(--green)" opacity=".88" data-tip="${esc(tt)}"/>`;
   const lab=monthly?b.d.slice(5)+'.'+b.d.slice(2,4):b.d.slice(5);
-  if(!monthly||true)s+=`<text x="${x+bw}" y="${H-6}" text-anchor="middle">${lab}</text>`});
+  s+=`<text x="${x+bw}" y="${H-8}" text-anchor="middle">${lab}</text>`});
  document.getElementById('chart').innerHTML=
-  `<div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px">${s}`+
-  '<rect x="4" y="2" width="10" height="10" fill="#f0883e"/><text x="18" y="11">real</text>'+
-  '<rect x="52" y="2" width="10" height="10" fill="#58a6ff"/><text x="66" y="11">Optimum</text></svg></div>'+
-  (monthly?'<p class="note">Zeiträume über 31 Tage werden pro Kalendermonat summarisiert.</p>':'')}
+  `<div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px">${s}</svg></div>`+
+  (monthly?'<p class="note">Zeiträume über 31 Tage werden pro Kalendermonat summarisiert.</p>':'');
+ document.querySelectorAll('.bar').forEach(r=>{
+  r.addEventListener('mousemove',e=>showTip(e,r.dataset.tip));
+  r.addEventListener('mouseleave',hideTip)})}
 document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{
  document.querySelectorAll('.seg button').forEach(x=>x.classList.remove('on'));
  b.classList.add('on');period=b.dataset.p;render()});
 anchorEl.onchange=render;
-
 async function run(what){document.getElementById('b1').disabled=true;document.getElementById('b2').disabled=true;
 try{const r=await fetch('run?what='+what);const d=await r.json();log(d.msg||'gestartet');poll();}
 catch(e){log('Fehler: '+e);document.getElementById('b1').disabled=false;document.getElementById('b2').disabled=false;}}
-function log(t){document.getElementById('runlog').textContent=t}
-function poll(){fetch('api/run-status').then(r=>r.json()).then(d=>{document.getElementById('runlog').textContent=(d.log||[]).join('\\n');
-if(d.running){setTimeout(poll,2000)}else{document.getElementById('b1').disabled=false;document.getElementById('b2').disabled=false;setTimeout(()=>location.reload(),1200)}})}
-
-function fillSel(id,ents,current){const sel=document.createElement('select');sel.id=id;
-let o=`<option value="">(nicht verwendet)</option>`;
-ents.forEach(e=>{const v=e.entity_id;o+=`<option value="${v}"${v===current?' selected':''}>${esc(e.attributes?.friendly_name||v)}</option>`});
-if(current&&!ents.some(e=>e.entity_id===current))o+=`<option value="${current}" selected>${esc(current)} (nicht in Liste)</option>`;
-sel.innerHTML=o;return sel}
-async function loadEntities(){
- try{const r=await fetch('api/ha-entities');HAENT=await r.json();ENT_LOADED=true;buildSensorFields()}
- catch(e){document.getElementById('sensorfelder').innerHTML='<p class="note">Sensoren konnten nicht geladen werden: '+esc(e)+'</p>'}}
-function buildSensorFields(){const f=document.getElementById('sensorfelder');f.innerHTML='';
-for(const key of EIDX){const div=document.createElement('div');div.className='feld';
-const lab=document.createElement('label');lab.textContent=ENT_LABELS[key];div.appendChild(lab);
-let list;const cur=curEnt(key);
-if(key.startsWith('Wallbox verb'))list=(HAENT.binary||[]);
-else if(key.startsWith('Preis'))list=(HAENT.price||[]);
-else{list=(HAENT.power||[]);if(cur&&!list.some(e=>e.entity_id===cur))list=[{entity_id:cur,attributes:{}}].concat(list)}
-div.appendChild(fillSel(eid(key),list,cur));f.appendChild(div)}}
-function saveSettings(){
- const mode=document.querySelector('input[name=expmode]:checked').value;
- const ent={};for(const k of EIDX){const el=document.getElementById(eid(k));ent[k]=el?el.value.trim():''}
- const tarif={"Preis Bezug (Sensor)":ent["Preis Bezug"],"Einspeisung":mode==='sensor'?"Direktvermarktung":"Einspeisevergütung"};
- if(mode==='sensor')tarif["Sensor Einspeisung (nur bei Direktvermarktung)"]=ent[EXKEY];
- else{const f=num('s_pfx');if(f!=null)tarif["Feste Vergütung in €/kWh (nur bei Einspeisevergütung)"]=f}
- const hemsm={"Hersteller":val('s_hems'),"PV Leistung":ent["PV Leistung"],
-  "Netz gesamt (negativ = Einspeisung)":ent["Netz gesamt (negativ = Einspeisung)"],
-  "Netz Bezug (nur bei getrennten Sensoren)":ent["Netz Bezug (nur bei getrennten Sensoren)"],
-  "Netz Einspeisung (nur bei getrennten Sensoren)":ent["Netz Einspeisung (nur bei getrennten Sensoren)"],
-  "Hausverbrauch":ent["Hausverbrauch"]};
- if(val('s_pv'))hemsm["Wechselrichter"]=val('s_pv');
- const body={"Auflösung":val('s_res'),"HEMS":hemsm,
-  "Speicher":{"Hersteller":val('s_batt'),"Kapazität in kWh":num('s_cap'),"Ladeleistung in kW":num('s_pc'),"Entladeleistung in kW":num('s_pd'),"Wirkungsgrad in %":num('s_eta')},
-  "Wärmepumpe":{"Hersteller":val('s_hp'),"Sensor":ent["Wärmepumpe Leistung"],"Mindestleistung in kW":num('s_hpmin'),"Höchstleistung in kW":num('s_hpmax')},
-  "Wallbox":{"Hersteller":val('s_wb'),"Sensor":ent["Wallbox Leistung"],"Auto anwesend (Binärsensor)":ent["Wallbox verbunden (optional)"],"Mindestleistung in kW":num('s_wbmin'),"Höchstleistung in kW":num('s_wbmax')},
-  "Tarif":tarif};
- fetch('api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
- .then(r=>r.json()).then(d=>{document.getElementById('setlog').textContent=d.ok?'Gespeichert ✓ wirksam ab dem nächsten Lauf.':('Fehler: '+(d.error||JSON.stringify(d)))});
-}
-function val(id){const e=document.getElementById(id);return e?e.value.trim():''}
-function num(id){const v=val(id);return v===''?null:parseFloat(v)}
-
-['HEMS','WECHSELRICHTER','SPEICHER','WALLBOX','WAERMEPUMPE'].forEach(k=>{
- const dl=document.createElement('datalist');dl.id='m'+k;dl.innerHTML=MANU[k].map(m=>`<option value="${esc(m)}">`).join('');document.body.appendChild(dl)});
-function fillSettings(){
- const H=SET["HEMS"]||{},S=SET["Speicher"]||{},W=SET["Wärmepumpe"]||{},B=SET["Wallbox"]||{},T=SET["Tarif"]||{};
- const d=SET["Geräte"]||SET.geraete||SET.devices||{},b=SET["Batterie"]||SET.batterie||SET.battery||{},gr=SET["Grenzwerte"]||SET.grenzwerte||{},e=SET["Einspeisung"]||{};
- s_hems.value=H.Hersteller||d.HEMS||d.hersteller_hems||d.ems_product||'';s_pv.value=H.Wechselrichter||d.Wechselrichter||d.hersteller_wechselrichter||d.pv_brand||'';
- s_batt.value=S.Hersteller||d.Speicher||d.hersteller_speicher||d.battery_brand||'';s_hp.value=W.Hersteller||d["Wärmepumpe"]||d.hersteller_waermepumpe||d.hp_brand||'';
- s_wb.value=B.Hersteller||d.Wallbox||d.hersteller_wallbox||d.wallbox_brand||'';
- s_cap.value=S["Kapazität in kWh"]??b["Kapazität in kWh"]??b.kapazitaet_kwh??b.capacity_kwh??'';s_pc.value=S["Ladeleistung in kW"]??b["Ladeleistung in kW"]??b.ladeleistung_kw??b.p_charge_max??'';
- s_pd.value=S["Entladeleistung in kW"]??b["Entladeleistung in kW"]??b.entladeleistung_kw??b.p_discharge_max??'';s_eta.value=S["Wirkungsgrad in %"]??b["Wirkungsgrad in %"]??b.wirkungsgrad_prozent??b.eta??'';
- s_hpmin.value=W["Mindestleistung in kW"]??gr["Wärmepumpe mindestens in kW"]??gr.waermepumpe_min_kw??'';s_hpmax.value=W["Höchstleistung in kW"]??gr["Wärmepumpe höchstens in kW"]??gr.waermepumpe_max_kw??'';
- s_wbmin.value=B["Mindestleistung in kW"]??gr["Wallbox mindestens in kW"]??gr.wallbox_min_kw??'';s_wbmax.value=B["Höchstleistung in kW"]??gr["Wallbox höchstens in kW"]??gr.wallbox_max_kw??'';
- const fx=T["Feste Vergütung in €/kWh (nur bei Einspeisevergütung)"]??e["Feste Vergütung in €/kWh"]??SET.preis_einspeisung_fix_eur??SET.price_exp_fixed??'';
- s_pfx.value=fx;
- ((T.Einspeisung==="Direktvermarktung")||(!T.Einspeisung&&(e.Sensor||!fx))?document.getElementById('exp_dyn'):document.getElementById('exp_fix')).checked=true;
- let rawRes=SET["Auflösung"]??SET["Auflösung_in_Sekunden"]??(SET.aufloesung_minuten?SET.aufloesung_minuten*60:(SET.resolution_min?SET.resolution_min*60:60));
- let sec={"10 Sekunden":10,"5 Minuten":300}[rawRes]||(+rawRes||60);
- if(![10,60,300].includes(sec))sec=60;
- s_res.value={10:"10 Sekunden",60:"1 Minute",300:"5 Minuten"}[sec];
- document.getElementById('sensorfelder').innerHTML='<p class="note">Sensoren werden geladen…</p>'}
-fillSettings();buildSensorFieldsEmpty();render();
-function curEnt(key){
- const H=SET["HEMS"]||{},W=SET["Wärmepumpe"]||{},B=SET["Wallbox"]||{},T=SET["Tarif"]||{};
- const V6={"PV Leistung":H["PV Leistung"],"Netz gesamt (negativ = Einspeisung)":H["Netz gesamt (negativ = Einspeisung)"],
-  "Netz Bezug (nur bei getrennten Sensoren)":H["Netz Bezug (nur bei getrennten Sensoren)"],
-  "Netz Einspeisung (nur bei getrennten Sensoren)":H["Netz Einspeisung (nur bei getrennten Sensoren)"],
-  "Hausverbrauch":H["Hausverbrauch"],"Wärmepumpe Leistung":W.Sensor,"Wallbox Leistung":B.Sensor,
-  "Wallbox verbunden (optional)":B["Auto anwesend (Binärsensor)"],"Preis Bezug":T["Preis Bezug (Sensor)"],
-  "Preis Einspeisung (nur bei Direktvermarktung)":T["Sensor Einspeisung (nur bei Direktvermarktung)"]};
- if(V6[key])return V6[key];
- const nk=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
- let s=SET["Sensoren"]||SET.sensoren||{};
- if(Array.isArray(s)){const m={};for(const e of s){if(e&&e["Funktion"]&&e["Entität"])m[e["Funktion"]]=e["Entität"]}s=m}
- for(const k in s){if(s[k]&&nk(k)===nk(key))return s[k]}
- const o=SET.entities||{};
- const OLD={"PV Leistung":"pv","Netz gesamt":"grid_net","Netz Bezug":"grid_import","Netz Einspeisung":"grid_export","Hausverbrauch":"house","Wärmepumpe":"hp","Wallbox Leistung":"wb","Wallbox verbunden":"wb_connected","Preis Bezug":"price_imp","Preis Einspeisung":"price_exp"};
- for(const pre in OLD){if(key.startsWith(pre)&&o[OLD[pre]])return o[OLD[pre]]}
- return ''}
-function buildSensorFieldsEmpty(){const f=document.getElementById('sensorfelder');f.innerHTML='';
-for(const key of EIDX){const div=document.createElement('div');div.className='feld';
-const lab=document.createElement('label');lab.textContent=ENT_LABELS[key];div.appendChild(lab);
-const inp=document.createElement('input');inp.type='text';inp.id=eid(key);inp.value=curEnt(key);
-div.appendChild(inp);f.appendChild(div)}}
-</script>
-</body></html>"""
+function log(t){const el=document.getElementById('runlog');el.classList.add('show');el.textContent=t}
+function poll(){fetch('api/run-status').then(r=>r.json()).then(d=>{const el=document.getElementById('runlog');
+ el.classList.add('show');el.textContent=(d.log||[]).join('\\n');
+ if(d.running){document.getElementById('b1').innerHTML='<span class="spin"></span>Läuft…';setTimeout(poll,2000)}
+ else{document.getElementById('b1').textContent='Gestern bewerten';document.getElementById('b1').disabled=false;document.getElementById('b2').disabled=false;setTimeout(()=>location.reload(),1200)}})}
+render();
+</script></body></html>"""
 
 
 def _esc_json(obj):
@@ -373,30 +272,39 @@ def _days(db_path):
 def render(db_path, version):
     opts = userconfig.load(_DATA_DIR, _OPTIONS_FILE)
     days = _days(db_path)
+    # v0.7-Menüformat bevorzugen, flache Altbestände weiterhin verstehen
+    hems = opts.get("HEMS") or {}
+    sp = opts.get("Speicher") or {}
     dev = (opts.get("Geräte") or opts.get("geraete") or opts.get("devices") or {})
-    safe_opts = {k: v for k, v in opts.items() if k != "token"}
+    hems_name = (hems.get("Hersteller") or dev.get("HEMS")
+                 or dev.get("hersteller_hems") or dev.get("ems_product") or "–")
+    batt_name = (sp.get("Hersteller") or dev.get("Speicher")
+                 or dev.get("hersteller_speicher") or dev.get("battery_brand") or "–")
     raw_res = (opts.get("Auflösung") or opts.get("Auflösung_in_Sekunden")
-               or opts.get("aufloesung_minuten") or opts.get("resolution_min") or 1)
-    RES = {"10 Sekunden": 10, "1 Minute": 60, "5 Minuten": 300}
-    if str(raw_res) in RES:
-        raw_res = RES[str(raw_res)]
+               or opts.get("aufloesung_minuten") or opts.get("resolution_min") or 60)
+    RES = {"10 Sekunden": 10, "10 Sekunden (rechenintensiv)": 10,
+           "1 Minute": 60, "5 Minuten": 300}
+    raw_res = RES.get(str(raw_res), raw_res)
     try:
         raw_res = int(raw_res)
     except Exception:
         raw_res = 60
     res_txt = {10: "10 s", 60: "1 min", 300: "5 min"}.get(raw_res, f"{raw_res} s")
-    sub = (f"HEMS: {dev.get('HEMS') or dev.get('hersteller_hems') or dev.get('ems_product') or '–'}"
-           f" · Speicher: {dev.get('Speicher') or dev.get('hersteller_speicher') or dev.get('battery_brand') or '–'}"
-           f" · Auflösung {res_txt}"
-           f" · Haushalt {opts.get('household_id', '')[:8] or '–'}")
+    hhid = ""
+    try:
+        with open(os.path.join(_DATA_DIR, "household_id")) as f:
+            hhid = f.read().strip()
+    except Exception:
+        hhid = str(opts.get("household_id", ""))
+    sub = (f"HEMS: {hems_name} · Speicher: {batt_name} · Auflösung {res_txt}"
+           f" · Haushalt {hhid[:8] or '–'}")
     html = (HTML
             .replace("__CSS__", CSS)
-            .replace("__METH__", METHodik)
+            .replace("__LOGO__", LOGO)
+            .replace("__SITE__", SITE_URL)
             .replace("__VER__", version)
             .replace("__SUB__", sub)
-            .replace("__DATA__", _esc_json(days))
-            .replace("__SET__", _esc_json(safe_opts))
-            .replace("__MANU__", _esc_json(manufacturers.MANUFACTURERS)))
+            .replace("__DATA__", _esc_json(days)))
     return html.encode("utf-8")
 
 
@@ -416,60 +324,6 @@ def _run_job(dates):
                 _RUN_STATE["log"].append(f"[{d}] EXCEPTION {e}")
     with _LOCK:
         _RUN_STATE["running"] = False
-
-
-_ALLOWED_SETTING_KEYS = {"Auflösung", "HEMS", "Speicher", "Wärmepumpe",
-                         "Wallbox", "Tarif"}
-
-
-def _mirror_to_supervisor():
-    """Effektive Konfiguration in die Supervisor-Optionen zurückschreiben,
-    damit der native HA-Konfigurationsreiter dasselbe anzeigt wie die
-    Dashboard-Einstellungen. Auf die Schema-Schlüssel gefiltert (das Overlay
-    kann Altbestände enthalten, die das neue Schema ablehnen würde).
-    Best effort — Scheitern ist nicht kritisch."""
-    try:
-        merged = userconfig.load(_DATA_DIR, _OPTIONS_FILE)
-        payload = {k: v for k, v in merged.items() if k in _ALLOWED_SETTING_KEYS}
-        token = os.environ.get("SUPERVISOR_TOKEN", "")
-        req = urllib.request.Request(
-            "http://supervisor/addons/self/options",
-            data=json.dumps({"options": payload}).encode(),
-            headers={"Authorization": f"Bearer {token}",
-                     "Content-Type": "application/json"},
-            method="POST")
-        with urllib.request.urlopen(req, timeout=10):
-            pass
-    except Exception as e:
-        print(f"[web] Supervisor-Mirror der Optionen fehlgeschlagen: {e}")
-
-
-def _ha_entities(opts):
-    url = "http://supervisor/core/api/states"
-    token = opts.get("token") or os.environ.get("SUPERVISOR_TOKEN", "")
-    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
-    with urllib.request.urlopen(req, timeout=15) as r:
-        states = json.loads(r.read().decode())
-    power, price, binary = [], [], []
-    for s in states:
-        at = s.get("attributes") or {}
-        eid = s.get("entity_id", "")
-        dc = at.get("device_class")
-        unit = str(at.get("unit_of_measurement", ""))
-        if eid.startswith("binary_sensor."):
-            if dc == "connectivity" or "wallbox" in eid or "charge" in eid or "connect" in eid:
-                binary.append(s)
-            continue
-        if not eid.startswith("sensor."):
-            continue  # number./input_number. etc. sind keine Messsensoren
-        if dc in ("monetary", "currency") or unit in ("€/kWh", "EUR/kWh", "ct/kWh"):
-            price.append(s)
-        elif dc in ("power", "energy") or unit in ("W", "kW"):
-            power.append(s)
-    slim = lambda lst: [{"entity_id": s["entity_id"],
-                         "attributes": {"friendly_name": s.get("attributes", {}).get("friendly_name", "")}}
-                        for s in sorted(lst, key=lambda x: x["entity_id"])]
-    return {"power": slim(power), "price": slim(price), "binary": slim(binary)}
 
 
 def start_server(port, db_path, version, tz):
@@ -493,16 +347,6 @@ def start_server(port, db_path, version, tz):
                                             "log": _RUN_STATE["log"][-10:]})
             if p == "/api/days":
                 return self._send(200, {"days": _days(db_path)})
-            if p == "/api/settings":
-                o = userconfig.load(_DATA_DIR, _OPTIONS_FILE)
-                o.pop("token", None)
-                return self._send(200, {"settings": o,
-                                        "manufacturers": manufacturers.MANUFACTURERS})
-            if p == "/api/ha-entities":
-                try:
-                    return self._send(200, _ha_entities(userconfig.load(_DATA_DIR, _OPTIONS_FILE)))
-                except Exception as e:
-                    return self._send(502, {"error": str(e)})
             if p == "/run":
                 if _RUN_STATE["running"]:
                     return self._send(409, {"msg": "Lauf bereits aktiv"})
@@ -516,24 +360,6 @@ def start_server(port, db_path, version, tz):
                 threading.Thread(target=_run_job, args=(dates,), daemon=True).start()
                 return self._send(200, {"msg": f"Starte {len(dates)} Tag(e)…"})
             return self._send(404, {"error": "not found"})
-
-        def do_POST(self):
-            p = urllib.parse.urlparse(self.path).path.rstrip("/") or "/"
-            if p == "/api/settings":
-                try:
-                    n = int(self.headers.get("Content-Length", 0))
-                    patch = json.loads(self.rfile.read(n).decode())
-                except Exception as e:
-                    return self._send(400, {"ok": False, "error": f"ungültiges JSON: {e}"})
-                clean = {k: v for k, v in patch.items() if k in _ALLOWED_SETTING_KEYS}
-                # None-Werte entfernen (leere Felder bedeuten 'unverändert')
-                def prune(d):
-                    return {k: prune(v) if isinstance(v, dict) else v
-                            for k, v in d.items() if v is not None}
-                userconfig.save(_DATA_DIR, prune(clean))
-                _mirror_to_supervisor()
-                return self._send(200, {"ok": True})
-            return self.do_GET()
 
         def log_message(self, *a):
             pass

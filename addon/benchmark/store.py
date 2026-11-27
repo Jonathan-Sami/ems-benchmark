@@ -41,6 +41,13 @@ def save_skipped(con, date, version, resolution_sec, flags):
     con.commit()
 
 
+def day_row(con, date):
+    """(oracle_cost, real_cost, quotient) fuer den Tag, None wenn kein Eintrag."""
+    return con.execute(
+        "SELECT oracle_cost, real_cost, quotient FROM days WHERE date=?",
+        (date,)).fetchone()
+
+
 def pending(con):
     return con.execute(
         "SELECT date, benchmark_version, resolution_min, oracle_cost, real_cost,"

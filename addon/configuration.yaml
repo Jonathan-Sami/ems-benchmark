@@ -1,8 +1,8 @@
 name: EMS Benchmark
 description: Unabhängiger Blackbox-Benchmark für Heim-Energiemanagementsysteme
-version: "0.6.0"
+version: "0.7.1"
 slug: ems-benchmark
-url: https://github.com/kai/ems-benchmark
+url: https://github.com/Jonathan-Sami/ems-benchmark
 arch:
   - amd64
   - aarch64
@@ -23,15 +23,17 @@ panel_icon: mdi:sword-cross
 panel_title: "EMS-Benchmark"
 
 schema:
-  Auflösung: list(10 Sekunden|1 Minute|5 Minuten)
-  HEMS:  # Messpunkte des Hauses (werden vom HEMS erfasst)
+  Auflösung: list(10 Sekunden (rechenintensiv)|1 Minute|5 Minuten)
+  HEMS:  # das Energiemanagement, das bewertet wird
     Hersteller: list(1KOMMA5° (Heartbeat AI)|ABB AG|Akkudoktor-EOS|ASKOMA|Awatt Electronic|beegy GmbH|Bosch Home Comfort Group|Buderus|chargebyte|Clever-PV|Consolinno Energy GmbH|CUBOS|Dafi GmbH|DBT Digital Building Technology GmbH & Co. KG|E.ON|E3/DC Group|ecodata solutions GmbH|EcoFlow Inc.|EcoPhi Renewables Engineering GmbH|eigene|Emulate Energy AB|EnBW Energie Baden-Württemberg AG|enercity|energielenker solutions GmbH|Energieversum|Eniris|enisyst GmbH|enjoyelec B.V.|Enpal|Enphase Energy|enyo GmbH|evcc.io|FENECON|Fronius International GmbH|gridX GmbH|Hager Vertriebsgesellschaft mbH & Co. KG|Hosenso GmbH & Co. KG|Huawei Technologies Deutschland GmbH|initEnergy|ise Individuelle Software und Elektronik GmbH|Jostec Systems GmbH|kamaste.it GmbH|Kiwigrid GmbH|KOSTAL Solar Electric GmbH|LADE GmbH|Loxone|M-TEC Energy Systems GmbH|MarkeDroid|myenergi (myenergi App)|myGEKKO|neoom International GmbH|NEW AG|Nexxtlab S.A.|openWB GmbH & Co. KG|PLEXLOG GmbH|Podero|Powernaut BV|PTR Energie GmbH|RAZO Energy|Reduxi FlexCo|Schneider Electric|SENEC GmbH|SHYFT|SMA Solar Technology AG|Smappee NV|Smart1 Solutions|Solar Manager AG|Solaraero GmbH Gruppe|Solarwatt GmbH|SOLUXION|sonnen GmbH|SpotmyEnergy|Stadtwerke Gütersloh|storm.house|Sungrow|Symcon|TEKKO Gebäudeautomation GmbH|Tesla Energy|thermondo GmbH|Tibber|Tinkerforge GmbH|TQ-Systems GmbH|Victron Energy|Viessmann Holding International GmbH|Wendeware AG|Yello Strom GmbH|Zerofy OÜ|Zählerfreunde)
-    Wechselrichter: list(a-TroniX|ABB / Fimer|ads-tec|Advanced Energy|AEG|Afore|AISWEI|Albatech|Alpha ESS|ALPHA-SOL|Altenergy Power System|Anker|APROS Solar Technology|APsystems|Astronergy|AUSTA|Autarco|AXITEC|Azzurro|Azzurro Inverter|Benning|Bosswerk|Canadian Solar|CE+T|Danfoss Solar|Delta|Deye|Dyness|E3DC|Elgris|Eltek|Enphase|Fenecon|FerroAmp|Fox ESS|Fronius|Ginlong|GivEnergy|GoodWe|GREENROCK|Gridcon|Growatt|Hoymiles|Huawei|IBC Solar|Innovenergy|Intillion|Kaco|Kontron Solar|Kostal|LG|M-TEC|MPP Power|neoom|Oztek Corp|PIXII|Powerdog|Prolux|Pylontech|Q.HOME|Qcells|RCT|RCT Power|Rui|SAJ|SAX|Schneider Electric|SENEC|Sigenergy|SMA|Smart me|Smatrfox|Sofar|Sofar Solar|SolarEdge|Solarmax|Solarwatt|SolaX Power|Solis|Solplanet|Sonnen|Sonnenkraft|Steca / Kontron Solar|Strong Energy|Studer Innotec|Sungrow|Sunova|Sunsynk|TAB|Tesla|Tigo|UCanPower|Varta|Victron Energy|Viessmann|Yaskawa Solectria Solar|ZCS|Zendure)?
-    PV Leistung: str
+  Zähler:  # Messpunkte für Netz und Hausverbrauch
     Netz gesamt (negativ = Einspeisung): str?
     Netz Bezug (nur bei getrennten Sensoren): str?
     Netz Einspeisung (nur bei getrennten Sensoren): str?
     Hausverbrauch: str?
+  Wechselrichter:
+    Hersteller: list(a-TroniX|ABB / Fimer|ads-tec|Advanced Energy|AEG|Afore|AISWEI|Albatech|Alpha ESS|ALPHA-SOL|Altenergy Power System|Anker|APROS Solar Technology|APsystems|Astronergy|AUSTA|Autarco|AXITEC|Azzurro|Azzurro Inverter|Benning|Bosswerk|Canadian Solar|CE+T|Danfoss Solar|Delta|Deye|Dyness|E3DC|Elgris|Eltek|Enphase|Fenecon|FerroAmp|Fox ESS|Fronius|Ginlong|GivEnergy|GoodWe|GREENROCK|Gridcon|Growatt|Hoymiles|Huawei|IBC Solar|Innovenergy|Intillion|Kaco|Kontron Solar|Kostal|LG|M-TEC|MPP Power|neoom|Oztek Corp|PIXII|Powerdog|Prolux|Pylontech|Q.HOME|Qcells|RCT|RCT Power|Rui|SAJ|SAX|Schneider Electric|SENEC|Sigenergy|SMA|Smart me|Smatrfox|Sofar|Sofar Solar|SolarEdge|Solarmax|Solarwatt|SolaX Power|Solis|Solplanet|Sonnen|Sonnenkraft|Steca / Kontron Solar|Strong Energy|Studer Innotec|Sungrow|Sunova|Sunsynk|TAB|Tesla|Tigo|UCanPower|Varta|Victron Energy|Viessmann|Yaskawa Solectria Solar|ZCS|Zendure)
+    PV Leistung: str
   Speicher:
     Hersteller: list(a-TroniX|ABB / Fimer|ads-tec|Advanced Energy|AEG|aentron|Afore|AISWEI|Albatech|Alpha ESS|ALPHA-SOL|Altenergy Power System|Anker|Anker Solix|APROS Solar Technology|APsystems|ASD Automatic Storage Device|Astronergy|AUSTA|Autarco|AXITEC|Azzurro|Azzurro Inverter|BAE Batterien|Benning|BlueSky Energy|Bluetti|BMZ|Bosswerk|BYD|Canadian Solar|Caterva|CE+T|CMBlu|Danfoss Solar|Delta|Deutsche Energieversorgung|Deye|Dyness|E3/DC|EcoFlow|Elgris|Eltek|Enphase|Exide|Felicity Solar|FENECON|FerroAmp|Fox ESS|Fronius|Ginlong|GivEnergy|GoodWe|GREENROCK|Gridcon|Growatt|Hoymiles|HPS Home Power Solutions|Huawei|HYCUBE|IBC Solar|Innovenergy|INTILION|Intillion|Jackery|Jenabatteries|Kaco|Kontron Solar|KOSTAL|LG|M-TEC|Marstek|Maxxisun|neoom|Oztek Corp|PIXII|Powerdog|Powertrust|Prolux|Pylontech|Q.HOME|Qcells|RCT|RCT Power|Rui|SAJ|SAX|SAX Power|Schneider Electric|SENEC|Sigenergy|SMA|Smart me|Smatrfox|Sofar|Solakon|SolarEdge|Solarmax|Solarwatt|SolaX|SolaX Power|Solis|Solis / Ginlong|Solplanet|sonnen|Sonnenkraft|Steca / Kontron Solar|Storion Energy|Strong Energy|Studer Innotec|Sungrow|Sunova|Sunsynk|Suntower|TAB|Tesla|TESVOLT|UCanPower|Varta|VARTA Storage|Victron Energy|Viessmann|Vitron|VoltStorage|WEESS|Yaskawa Solectria Solar|ZCS|ZCS Azzurro|Zendure)
     Kapazität in kWh: float

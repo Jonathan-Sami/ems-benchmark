@@ -20,7 +20,7 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent.parent
 M = json.load(open(BASE / "server/manufacturers.json"))
 
-VER = "0.6.0"
+VER = "0.7.1"
 
 # Kais Geräteangaben exakt gegen die Listen normalisieren
 def exact(lst, want):
@@ -74,7 +74,7 @@ L.append("name: EMS Benchmark")
 L.append("description: Unabhängiger Blackbox-Benchmark für Heim-Energiemanagementsysteme")
 L.append(f'version: "{VER}"')
 L.append("slug: ems-benchmark")
-L.append("url: https://github.com/kai/ems-benchmark")
+L.append("url: https://github.com/Jonathan-Sami/ems-benchmark")
 L.append("arch:\n  - amd64\n  - aarch64")
 L.append("startup: application")
 L.append("stage: experimental")
@@ -91,15 +91,17 @@ L.append("panel_icon: mdi:sword-cross")
 L.append('panel_title: "EMS-Benchmark"')
 L.append("")
 L.append("schema:")
-L.append("  Auflösung: list(10 Sekunden|1 Minute|5 Minuten)")
-L.append("  HEMS:  # Messpunkte des Hauses (werden vom HEMS erfasst)")
+L.append("  Auflösung: list(10 Sekunden (rechenintensiv)|1 Minute|5 Minuten)")
+L.append("  HEMS:  # das Energiemanagement, das bewertet wird")
 L.append("    Hersteller: " + listtype(LISTMAP["HEMS"]))
-L.append("    Wechselrichter: " + listtype(LISTMAP["Wechselrichter"]) + "?")
-L.append("    PV Leistung: str")
+L.append("  Zähler:  # Messpunkte für Netz und Hausverbrauch")
 L.append("    Netz gesamt (negativ = Einspeisung): str?")
 L.append("    Netz Bezug (nur bei getrennten Sensoren): str?")
 L.append("    Netz Einspeisung (nur bei getrennten Sensoren): str?")
 L.append("    Hausverbrauch: str?")
+L.append("  Wechselrichter:")
+L.append("    Hersteller: " + listtype(LISTMAP["Wechselrichter"]))
+L.append("    PV Leistung: str")
 L.append("  Speicher:")
 L.append("    Hersteller: " + listtype(LISTMAP["Speicher"]))
 L.append("    Kapazität in kWh: float")
@@ -165,14 +167,16 @@ print(f"geschrieben: addon/configuration.yaml + config.yaml ({len(out)} Zeichen)
 # Schema-konforme Optionen fürs POST an den Supervisor (Kais Anlage)
 opts = {"options": {
     "Auflösung": "1 Minute",
-    "HEMS": {
-        "Hersteller": KAIS["HEMS"],
-        "Wechselrichter": KAIS["Wechselrichter"],
-        "PV Leistung": KAIS_SENSOREN["pv"],
+    "HEMS": {"Hersteller": KAIS["HEMS"]},
+    "Zähler": {
         "Netz gesamt (negativ = Einspeisung)": KAIS_SENSOREN["grid"],
         "Netz Bezug (nur bei getrennten Sensoren)": "",
         "Netz Einspeisung (nur bei getrennten Sensoren)": "",
         "Hausverbrauch": KAIS_SENSOREN["house"],
+    },
+    "Wechselrichter": {
+        "Hersteller": KAIS["Wechselrichter"],
+        "PV Leistung": KAIS_SENSOREN["pv"],
     },
     "Speicher": {
         "Hersteller": KAIS["Speicher"], "Kapazität in kWh": 4.8,
@@ -195,6 +199,6 @@ opts = {"options": {
         "Feste Vergütung in €/kWh (nur bei Einspeisevergütung)": 0.124,
     },
 }}
-Path("/tmp/newopts060.json").write_text(json.dumps(opts, ensure_ascii=False), encoding="utf-8")
-print("geschrieben: /tmp/newopts060.json")
+Path("/tmp/newopts070.json").write_text(json.dumps(opts, ensure_ascii=False), encoding="utf-8")
+print("geschrieben: /tmp/newopts070.json")
 print("Geräte-Werte:", KAIS)
