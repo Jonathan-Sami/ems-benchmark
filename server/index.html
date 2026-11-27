@@ -16,7 +16,8 @@ body{margin:0;font:16px/1.65 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",Ar
 /* ---------- Header ---------- */
 header{position:sticky;top:0;background:rgba(255,255,255,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);z-index:50}
 header .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
-.logo{font-weight:800;font-size:16px;letter-spacing:-.2px;display:flex;align-items:center;gap:8px}
+.logo{font-weight:800;font-size:16px;letter-spacing:-.2px;display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none;cursor:pointer;transition:opacity .2s}
+.logo:hover{opacity:.72}
 .logo .mark{width:28px;height:28px}
 nav{display:flex;gap:4px}
 nav button{background:none;border:none;font:inherit;font-size:14.5px;color:var(--muted);cursor:pointer;padding:8px 14px;border-radius:99px;transition:all .25s}
@@ -121,7 +122,7 @@ summary{cursor:pointer;font-weight:700;font-size:14.5px;padding:10px 0}
 <body>
 
 <header><div class="wrap">
-<div class="logo"><svg class="mark" viewBox="0 0 512 512" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M84 208 L256 72 L428 208" stroke="#0F172A" stroke-width="30"/><rect x="132" y="336" width="66" height="96" rx="16" fill="#0F172A"/><rect x="223" y="288" width="66" height="144" rx="16" fill="#0F172A"/><rect x="314" y="240" width="66" height="192" rx="16" fill="#10B981"/></svg>EMS-Benchmark<span class="badge-test">Testphase</span></div>
+<a class="logo" href="#bench" onclick="goTab('bench');return false" title="Zurück zum Benchmark"><svg class="mark" viewBox="0 0 512 512" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M84 208 L256 72 L428 208" stroke="#0F172A" stroke-width="30"/><rect x="132" y="336" width="66" height="96" rx="16" fill="#0F172A"/><rect x="223" y="288" width="66" height="144" rx="16" fill="#0F172A"/><rect x="314" y="240" width="66" height="192" rx="16" fill="#10B981"/></svg>EMS-Benchmark<span class="badge-test">Testphase</span></a>
 <nav>
 <button data-t="bench" class="on">Benchmark</button>
 <button data-t="meth">Methodik</button>
