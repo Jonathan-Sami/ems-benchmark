@@ -31,7 +31,7 @@ Pro Kalendertag (Experiment, 15-Min bis 1-Min-Raster, konfigurierbar):
 ## Komponenten
 
 ```
-addon/                    Home-Assistant-Add-on (Community-Client)
+addons/ems-benchmark/     Home-Assistant-Add-on (Community-Client)
   config.yaml             Options/Schema: Entitäten, Batterie, Geräte-Grenzen
   benchmark/model.py      Oracle-MILP + reale Kosten + Quotient (Kern)
   benchmark/ha.py         HA-History-Rest + zeitgewichtete Resampling
@@ -63,7 +63,7 @@ Server: systemd-Userdienst `ems-bench-api`
 
 ```
 systemctl --user status ems-bench-api
-.venv/bin/python addon/benchmark/daemon.py 2026-11-21   # manueller Backfill
+.venv/bin/python addons/ems-benchmark/benchmark/daemon.py 2026-11-21   # manueller Backfill
 .venv/bin/python tests/synthetic_test.py                # Modell-Test
 ```
 

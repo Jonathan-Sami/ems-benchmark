@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generiert addon/configuration.yaml (+ config.yaml) aus server/manufacturers.json.
+"""Generiert addons/ems-benchmark/configuration.yaml (+ config.yaml) aus server/manufacturers.json.
 
 v0.6.0 — Aufklapp-Menüs: verschachtelte Dicts rendert der Supervisor als
 aufklappbare Abschnitte (type: schema). Reihenfolge: Auflösung, HEMS,
@@ -161,8 +161,8 @@ L.append("")
 
 out = "\n".join(L)
 for fn in ("configuration.yaml", "config.yaml"):
-    (BASE / "addon" / fn).write_text(out, encoding="utf-8")
-print(f"geschrieben: addon/configuration.yaml + config.yaml ({len(out)} Zeichen)")
+    (BASE / "addons" / "ems-benchmark" / fn).write_text(out, encoding="utf-8")
+print(f"geschrieben: addons/ems-benchmark/configuration.yaml + config.yaml ({len(out)} Zeichen)")
 
 # Schema-konforme Optionen fürs POST an den Supervisor (Kais Anlage)
 opts = {"options": {

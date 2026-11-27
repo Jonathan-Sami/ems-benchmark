@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regeneriert addon/benchmark/manufacturers.py + server/manufacturers.json
+"""Regeneriert addons/ems-benchmark/benchmark/manufacturers.py + server/manufacturers.json
 aus EMS-Benchmark_Herstellerlisten.md (mit manuellen Ergänzungen)."""
 import json
 import re
@@ -48,7 +48,7 @@ py = ('"""Hersteller-Listen fuer die Dashboard-Dropdowns.\n\n'
       "Plus manuelle Ergaenzungen (Akkudoktor-EOS, eigene).\n"
       '"""\n\nMANUFACTURERS = ')
 py += json.dumps(lists, ensure_ascii=False, indent=1) + "\n"
-open("addon/benchmark/manufacturers.py", "w", encoding="utf-8").write(py)
+open("addons/ems-benchmark/benchmark/manufacturers.py", "w", encoding="utf-8").write(py)
 json.dump(lists, open("server/manufacturers.json", "w", encoding="utf-8"),
           ensure_ascii=False, indent=1)
 print({k: len(v) for k, v in lists.items()})
