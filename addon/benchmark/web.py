@@ -200,7 +200,7 @@ function render(){
  document.getElementById('tb').innerHTML=w.slice().reverse().map(d=>
   (d.q==null&&d.o==null)
   ?`<tr><td>${d.d}</td><td colspan="6" class="bad" style="text-align:left">verworfen — Sensorabdeckung unter 90 % (nicht gewertet, nicht übertragen)</td></tr>`
-  :`<tr><td>${d.d}</td><td>${money(d.r)}</td><td>${money(d.o)}</td><td>${money((d.r!=null&&d.o!=null)?d.r-d.o:null)}</td><td><span class="idx ${qclass(d.q)}">${pct(d.q)}</span></td><td>${d.th??''}</td><td>${d.cov??''}</td></tr>`).join('')
+  :`<tr><td>${d.d}</td><td>${money(d.r)}</td><td>${money(d.o)}</td><td>${money((d.r!=null&&d.o!=null)?d.r-d.o:null)}</td><td><span class="idx ${qclass(d.q)}">${pct(d.q)}</span></td><td>${d.th==null?'–':d.th.toFixed(2).replace('.',',')}</td><td>${typeof d.cov==='number'?(100*d.cov).toFixed(0).replace('.',',')+' %':(d.cov??'')}</td></tr>`).join('')
   ||'<tr><td colspan="7">Keine gewerteten Tage im Zeitraum.</td></tr>';
 }
 const tip=document.getElementById('tip');
