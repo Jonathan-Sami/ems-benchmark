@@ -66,6 +66,12 @@ transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s;box-shadow:0 
 .sitebtn:hover{transform:translateY(-3px);box-shadow:0 18px 34px -14px rgba(15,23,42,.55)}
 .sitebtn svg{width:16px;height:16px;transition:transform .25s}
 .sitebtn:hover svg{transform:translate(3px,-3px)}
+.themebtn{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--card);
+color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s;box-shadow:var(--shadow);flex:none}
+.themebtn:hover{transform:translateY(-3px)}
+.themebtn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.headbtns{display:flex;align-items:center;gap:12px}
 .sub{color:var(--mut);font-size:13px;margin:-14px 0 22px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 22px;
 box-shadow:var(--shadow);margin-bottom:18px;animation:rise .5s cubic-bezier(.16,1,.3,1) both}
@@ -129,8 +135,10 @@ HTML = """<!doctype html><html lang="de"><head><meta charset="utf-8">
 <title>EMS-Benchmark</title><style>__CSS__</style></head><body><div class="wrap">
 <header>
  <div class="brand">__LOGO__EMS-Benchmark<span class="verchip">v__VER__</span></div>
+ <span class="headbtns">
  <a class="sitebtn" href="__SITE__" target="_blank" rel="noopener">Alle Benchmarks sehen
   <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5H5.06l6.97 6.97a.75.75 0 1 1-1.06 1.06L4 4.56v2.19a.75.75 0 0 1-1.5 0v-4.5a.75.75 0 0 1 .75-.75Z"/><path d="M2 12.25A.75.75 0 0 1 2.75 11.5h10.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z"/></svg></a>
+ <button class="themebtn" id="tbtn" title="Hell/Dunkel"></button></span>
 </header>
 <div class="sub">__SUB__</div>
 
@@ -166,12 +174,24 @@ HTML = """<!doctype html><html lang="de"><head><meta charset="utf-8">
 </div>
 <div class="tip" id="tip"></div>
 <script>
-(function(){const p=new URLSearchParams(location.search);let d=null;
- if(p.get('dark')!==null)d=p.get('dark')==='1';
+const MOON='<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>';
+const SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M4.9 4.9 6.7 6.7M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg>';
+(function(){const p=new URLSearchParams(location.search);let saved=null;
+ try{saved=localStorage.getItem('emsbench-theme')}catch(e){}
+ let d=null;
+ if(saved==='dark'||saved==='light')d=saved==='dark';
+ else if(p.get('dark')!==null)d=p.get('dark')==='1';
  else if(p.get('theme'))d=/dark/i.test(p.get('theme'));
  const mq=matchMedia('(prefers-color-scheme: dark)');
- function ap(){document.documentElement.classList.toggle('dark', d===null?mq.matches:d)}
- mq.addEventListener('change',()=>{if(d===null)ap()});ap()})();
+ function isDark(){return d===null?mq.matches:d}
+ function paint(){document.documentElement.classList.toggle('dark',isDark());
+  const b=document.getElementById('tbtn');if(b){b.innerHTML=isDark()?SUN:MOON;
+   b.title=d===null?'Hell/Dunkel ( folgt dem System — klicken zum Festlegen )':(isDark()?'Zu Hell wechseln':'Zu Dunkel wechseln')}}
+ window.__themeToggle=function(){try{localStorage.setItem('emsbench-theme',isDark()?'light':'dark')}catch(e){}
+  d=isDark()?false:true;paint()};
+ document.getElementById('tbtn').addEventListener('click',window.__themeToggle);
+ mq.addEventListener('change',()=>{if(d===null)paint()});
+ addEventListener('DOMContentLoaded',paint);paint()})();
 const DAYS=__DATA__;
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
 function qclass(q){return q==null?'':(q>=0.85?'good':(q>=0.6?'mid':'bad'))}

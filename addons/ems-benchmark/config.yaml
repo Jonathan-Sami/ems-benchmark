@@ -1,6 +1,6 @@
 name: EMS Benchmark
 description: Unabhängiger Blackbox-Benchmark für Heim-Energiemanagementsysteme
-version: "0.8.1"
+version: "0.8.3"
 slug: ems-benchmark
 url: https://github.com/Jonathan-Sami/ems-benchmark
 arch:
@@ -25,28 +25,28 @@ panel_title: "EMS-Benchmark"
 schema:
   Auflösung: list(10 Sekunden (rechenintensiv)|1 Minute|5 Minuten)
   HEMS:  # das Energiemanagement, das bewertet wird
-    Hersteller: list(1KOMMA5° (Heartbeat AI)|Akkudoktor-EOS|AMPERIX Energiemanagement-System Home 4|ASKO Set|beegy HEMS|Bosch Energiemanager|CB Energy|clever-PV|CUBOS.Energy|e-pot|E.ON Home Energiemanager|EcoFlow Oasis|EcoPhi EMS|eigene|Emulate HEMS|Enbas|EnBW Mavi|enercity PULS|Energiemanager|Energy Manager EM410|eni.control|enjoyelec HEMS|Enpal.One|enyo|EV.cockpit|evcc|FEMS|Flex Energie EMS|flow|Fronius|GT-SmartEnergy|HEMS PRO|HEMSlogic|HsenBoxx|Infinity|initEnergy EMS|Integriertes Energiemanagement des E3/DC-Hauskraftwerks|IQ Energy Management|Kiwigrid|KOSTAL PLENTICORE G3 und KOSTAL Energy Meter|KOSTAL PLENTICORE G3 und KOSTAL Smart Energy Meter|LADEgenius|Leaflet HEMS|M-TEC E-Smart|MarkeDroid|Miniserver|myenergi (myenergi App)|MyEnergyMaster|NeoGrid AI|neoom Ai|NEW eManager|openWB (software2)|peter Pro|PL|Podero|Powernaut Energy Operations Workspace™|RAZO Energy|Reduxi|SENEC.PowerPilot|shyft-power.com|SMA Data Manager M|SMA Home Storage Solution|Smart Assistant SA4H-A02|SMART CONNECT KNX e-charge II|Smart EMS EX.1|Smart Energy System|Smart1 EMS-Systeme|SmartDog|SMARTFOX Energiemanagement|SmartgridOne|Smartmaster|SmartRobo|Solar Manager|Solarwatt Manager|Solistrom|Soluxion Hems Plus|storm.house EMS|Sungrow|Sunny Home Manager 2.0|Symcon|TEKKO Energiemanager|Tesla Energy|thermondo smart|Tibber|Victron Energy|Viessmann Energy Management|VOLTRADER|WARP Energy Manager 2.0|wibutler pro|XENON|Yello Hub|Zerofy|ZF-Automations)
+    Hersteller: list(1KOMMA5° (Heartbeat AI)|Akkudoktor-EOS|AMPERIX Energiemanagement-System Home 4|ASKO Set|beegy HEMS|Bosch Energiemanager|CB Energy|clever-PV|CUBOS.Energy|e-pot|E.ON Home Energiemanager|EcoFlow Oasis|EcoPhi EMS|eigene|Emulate HEMS|Enbas|EnBW Mavi|enercity PULS|Energiemanager|Energy Manager EM410|eni.control|enjoyelec HEMS|Enpal.One|enyo|EV.cockpit|evcc|FEMS|Flex Energie EMS|flow|Fronius|GT-SmartEnergy|HEMS PRO|HEMSlogic|HsenBoxx|Infinity|initEnergy EMS|Integriertes Energiemanagement des E3/DC-Hauskraftwerks|IQ Energy Management|Kiwigrid|KOSTAL PLENTICORE G3 und KOSTAL Energy Meter|KOSTAL PLENTICORE G3 und KOSTAL Smart Energy Meter|LADEgenius|Leaflet HEMS|M-TEC E-Smart|MarkeDroid|Miniserver|myenergi (myenergi App)|MyEnergyMaster|NeoGrid AI|neoom Ai|NEW eManager|openWB (software2)|peter Pro|PL|Podero|Powernaut Energy Operations Workspace™|RAZO Energy|Reduxi|SENEC.PowerPilot|shyft-power.com|SMA Data Manager M|SMA Home Storage Solution|Smart Assistant SA4H-A02|SMART CONNECT KNX e-charge II|Smart EMS EX.1|Smart Energy System|Smart1 EMS-Systeme|SmartDog|SMARTFOX Energiemanagement|SmartgridOne|Smartmaster|SmartRobo|Solar Manager|Solarwatt Manager|Solistrom|Soluxion Hems Plus|storm.house EMS|Sungrow|Sunny Home Manager 2.0|Symcon|TEKKO Energiemanager|Tesla Energy|thermondo smart|Tibber|Victron Energy|Viessmann Energy Management|VOLTRADER|WARP Energy Manager 2.0|wibutler pro|XENON|Yello Hub|Zerofy|ZF-Automations)?
   Zähler:  # Messpunkte für Netz und Hausverbrauch
     Netz gesamt (negativ = Einspeisung): str?
     Netz Bezug (nur bei getrennten Sensoren): str?
     Netz Einspeisung (nur bei getrennten Sensoren): str?
     Hausverbrauch: str?
   Wechselrichter:
-    Hersteller: list(a-TroniX|ABB / Fimer|ads-tec|Advanced Energy|AEG|Afore|AISWEI|Albatech|Alpha ESS|ALPHA-SOL|Altenergy Power System|Anker|APROS Solar Technology|APsystems|Astronergy|AUSTA|Autarco|AXITEC|Azzurro|Azzurro Inverter|Benning|Bosswerk|Canadian Solar|CE+T|Danfoss Solar|Delta|Deye|Dyness|E3DC|Elgris|Eltek|Enphase|Fenecon|FerroAmp|Fox ESS|Fronius|Ginlong|GivEnergy|GoodWe|GREENROCK|Gridcon|Growatt|Hoymiles|Huawei|IBC Solar|Innovenergy|Intillion|Kaco|Kontron Solar|Kostal|LG|M-TEC|MPP Power|neoom|Oztek Corp|PIXII|Powerdog|Prolux|Pylontech|Q.HOME|Qcells|RCT|RCT Power|Rui|SAJ|SAX|Schneider Electric|SENEC|Sigenergy|SMA|Smart me|Smatrfox|Sofar|Sofar Solar|SolarEdge|Solarmax|Solarwatt|SolaX Power|Solis|Solplanet|Sonnen|Sonnenkraft|Steca / Kontron Solar|Strong Energy|Studer Innotec|Sungrow|Sunova|Sunsynk|TAB|Tesla|Tigo|UCanPower|Varta|Victron Energy|Viessmann|Yaskawa Solectria Solar|ZCS|Zendure)
+    Hersteller: list(a-TroniX|ABB / Fimer|ads-tec|Advanced Energy|AEG|Afore|AISWEI|Albatech|Alpha ESS|ALPHA-SOL|Altenergy Power System|Anker|APROS Solar Technology|APsystems|Astronergy|AUSTA|Autarco|AXITEC|Azzurro|Azzurro Inverter|Benning|Bosswerk|Canadian Solar|CE+T|Danfoss Solar|Delta|Deye|Dyness|E3DC|Elgris|Eltek|Enphase|Fenecon|FerroAmp|Fox ESS|Fronius|Ginlong|GivEnergy|GoodWe|GREENROCK|Gridcon|Growatt|Hoymiles|Huawei|IBC Solar|Innovenergy|Intillion|Kaco|Kontron Solar|Kostal|LG|M-TEC|MPP Power|neoom|Oztek Corp|PIXII|Powerdog|Prolux|Pylontech|Q.HOME|Qcells|RCT|RCT Power|Rui|SAJ|SAX|Schneider Electric|SENEC|Sigenergy|SMA|Smart me|Smatrfox|Sofar|Sofar Solar|SolarEdge|Solarmax|Solarwatt|SolaX Power|Solis|Solplanet|Sonnen|Sonnenkraft|Steca / Kontron Solar|Strong Energy|Studer Innotec|Sungrow|Sunova|Sunsynk|TAB|Tesla|Tigo|UCanPower|Varta|Victron Energy|Viessmann|Yaskawa Solectria Solar|ZCS|Zendure)?
     PV Leistung: str
   Speicher:
-    Hersteller: list(a-TroniX|ABB / Fimer|ads-tec|Advanced Energy|AEG|aentron|Afore|AISWEI|Albatech|Alpha ESS|ALPHA-SOL|Altenergy Power System|Anker|Anker Solix|APROS Solar Technology|APsystems|ASD Automatic Storage Device|Astronergy|AUSTA|Autarco|AXITEC|Azzurro|Azzurro Inverter|BAE Batterien|Benning|BlueSky Energy|Bluetti|BMZ|Bosswerk|BYD|Canadian Solar|Caterva|CE+T|CMBlu|Danfoss Solar|Delta|Deutsche Energieversorgung|Deye|Dyness|E3/DC|EcoFlow|Elgris|Eltek|Enphase|Exide|Felicity Solar|FENECON|FerroAmp|Fox ESS|Fronius|Ginlong|GivEnergy|GoodWe|GREENROCK|Gridcon|Growatt|Hoymiles|HPS Home Power Solutions|Huawei|HYCUBE|IBC Solar|Innovenergy|INTILION|Intillion|Jackery|Jenabatteries|Kaco|Kontron Solar|KOSTAL|LG|M-TEC|Marstek|Maxxisun|neoom|Oztek Corp|PIXII|Powerdog|Powertrust|Prolux|Pylontech|Q.HOME|Qcells|RCT|RCT Power|Rui|SAJ|SAX|SAX Power|Schneider Electric|SENEC|Sigenergy|SMA|Smart me|Smatrfox|Sofar|Solakon|SolarEdge|Solarmax|Solarwatt|SolaX|SolaX Power|Solis|Solis / Ginlong|Solplanet|sonnen|Sonnenkraft|Steca / Kontron Solar|Storion Energy|Strong Energy|Studer Innotec|Sungrow|Sunova|Sunsynk|Suntower|TAB|Tesla|TESVOLT|UCanPower|Varta|VARTA Storage|Victron Energy|Viessmann|Vitron|VoltStorage|WEESS|Yaskawa Solectria Solar|ZCS|ZCS Azzurro|Zendure)
+    Hersteller: list(a-TroniX|ABB / Fimer|ads-tec|Advanced Energy|AEG|aentron|Afore|AISWEI|Albatech|Alpha ESS|ALPHA-SOL|Altenergy Power System|Anker|Anker Solix|APROS Solar Technology|APsystems|ASD Automatic Storage Device|Astronergy|AUSTA|Autarco|AXITEC|Azzurro|Azzurro Inverter|BAE Batterien|Benning|BlueSky Energy|Bluetti|BMZ|Bosswerk|BYD|Canadian Solar|Caterva|CE+T|CMBlu|Danfoss Solar|Delta|Deutsche Energieversorgung|Deye|Dyness|E3/DC|EcoFlow|Elgris|Eltek|Enphase|Exide|Felicity Solar|FENECON|FerroAmp|Fox ESS|Fronius|Ginlong|GivEnergy|GoodWe|GREENROCK|Gridcon|Growatt|Hoymiles|HPS Home Power Solutions|Huawei|HYCUBE|IBC Solar|Innovenergy|INTILION|Intillion|Jackery|Jenabatteries|Kaco|Kontron Solar|KOSTAL|LG|M-TEC|Marstek|Maxxisun|neoom|Oztek Corp|PIXII|Powerdog|Powertrust|Prolux|Pylontech|Q.HOME|Qcells|RCT|RCT Power|Rui|SAJ|SAX|SAX Power|Schneider Electric|SENEC|Sigenergy|SMA|Smart me|Smatrfox|Sofar|Solakon|SolarEdge|Solarmax|Solarwatt|SolaX|SolaX Power|Solis|Solis / Ginlong|Solplanet|sonnen|Sonnenkraft|Steca / Kontron Solar|Storion Energy|Strong Energy|Studer Innotec|Sungrow|Sunova|Sunsynk|Suntower|TAB|Tesla|TESVOLT|UCanPower|Varta|VARTA Storage|Victron Energy|Viessmann|Vitron|VoltStorage|WEESS|Yaskawa Solectria Solar|ZCS|ZCS Azzurro|Zendure)?
     Kapazität in kWh: float
     Ladeleistung in kW: float
     Entladeleistung in kW: float
     Wirkungsgrad in %: int(1,100)
   Wärmepumpe:
-    Hersteller: list(1 Eco Design GmbH|Acalor|AEG Haustechnik|Aira|AISIN|Akvaterm|Alpha Innotec|Andivi|aqotec|Atlantic|Austria Email|Beglau|Bosch|Broetje|Buderus|Carrier|Consolar|CTA|CTC|Daikin|Dimplex|Drexel + Weiss|Dürr thermea|Ecoforest|ELCO|emcal|FläktGroup|Gorenje|Guangdong New Energy / Newntide|Haier|heatrex|Heliotherm|HIDROS|Hisense|Hoval|iDM|Junkers|Kampmann|Kermi|KNV|Kronoterm|LAMBDA|LG|M-TEC|MHG Heiztechnik|Michl Technik|Midea|Mitsubishi|Nefit|NIBE|Nilan|Novelan|Ochsner|Oertli|Panasonic|PEGO|Phnix|ratiotherm|Remeha|REMKO|ROTEX (Werk stillgelegt)|Roth Werke|S+W|Samsung|Saunier Duval|Schneider Electric|Siemens|SmartHeat|SOLARFOCUS|Solvis|SONNENKRAFT|Stiebel Eltron|Stulz|Systemair|tecalor|TEDOM|Thermia|Thermotion|Trane|Vaillant|Viessmann|Waterkote|Waterkotte|Weishaupt|Wolf|Worcester Bosch|Yanmar|Ygnis)
+    Hersteller: list(1 Eco Design GmbH|Acalor|AEG Haustechnik|Aira|AISIN|Akvaterm|Alpha Innotec|Andivi|aqotec|Atlantic|Austria Email|Beglau|Bosch|Broetje|Buderus|Carrier|Consolar|CTA|CTC|Daikin|Dimplex|Drexel + Weiss|Dürr thermea|Ecoforest|ELCO|emcal|FläktGroup|Gorenje|Guangdong New Energy / Newntide|Haier|heatrex|Heliotherm|HIDROS|Hisense|Hoval|iDM|Junkers|Kampmann|Kermi|KNV|Kronoterm|LAMBDA|LG|M-TEC|MHG Heiztechnik|Michl Technik|Midea|Mitsubishi|Nefit|NIBE|Nilan|Novelan|Ochsner|Oertli|Panasonic|PEGO|Phnix|ratiotherm|Remeha|REMKO|ROTEX (Werk stillgelegt)|Roth Werke|S+W|Samsung|Saunier Duval|Schneider Electric|Siemens|SmartHeat|SOLARFOCUS|Solvis|SONNENKRAFT|Stiebel Eltron|Stulz|Systemair|tecalor|TEDOM|Thermia|Thermotion|Trane|Vaillant|Viessmann|Waterkote|Waterkotte|Weishaupt|Wolf|Worcester Bosch|Yanmar|Ygnis)?
     Sensor: str
     Mindestleistung in kW: float
     Höchstleistung in kW: float
   Wallbox:
-    Hersteller: list(ABB|ABL|Alfen|Alphatec|alpitronic|Ambibox|Amina|Amperfied|AMPURE|APsystems|Audi|Autel|Autoaid|Bauer|Bender|Benning|Berger|Berner|Blaupunkt|BMW|cFos eMobility|Charge Amps|Clemap|Compleo|Compleo / Innogy|ctek|Cubos|Cupra|Dadapower|DaheimLaden|Dazebox|Delta|Dezony|E.ON|E3DC|easee|EATON|ebee|echarge|EcoHarmony|ECONG|ecotap|Edgetech|Elexon|Elinta Charge|Elli|Elli (VW)|Elmi Power|EM2GO|Enelion|Enercab|Enovates|Enphase|Ensto|Entratek|ESL|Eta Plus|Etrel|EV body|EVBox|Evect|EVSE|EVTAP|EVTEC AG|EWE Go|FBT New Energy|Fox ESS|Free2move|Fronius|GARO|getpower|GL Charge GlowBox|go-e|Hager|HAPO Energy|Hardy Barth|Heidelberg|Hesotech|Homecharge|Honda|i-CHARGE|ies|Innogy|INRO|IO Charger|Joint|JUICE|Juice Technology|Kathrein eMobility|Kathrein KWB|Kontron / Steca|KOSTAD UNITY|Kostal|KREISEL Electric|LADE|LadeFoxx|Lektri|Mennekes|Metron|myenergi|myenergy|NeCharge|neoom|NRGkick|OBO Bettermann|OCPP|Ohme|OpenEVSE|openWB|Optec|Optec / Garo|Orbis|PANTABOX|Partino|PCE|Peblar|Phoenix Contact|PION|Porsche|POWERJames|Pracht|Pulsares|PUMP|Raedian|Rheinmetall|RZB Energy|Scapo|Schneider Electric|Schrack|SENEC|Siemens|Sigenergy|Skoda|SMA|Smart-me|Smartfox|SolarEdge|SOLARWATT|Solax|Sonnen|Spelsberg|Stöhr|sun2wheel|Sungrow|Technagon|TechniSat|Technivolt|Teltonika|Tesla|Tigo|TinkerForge|Ubitricity|Vestel|Victron Energy|Viessmann|VOITAS|Volkswagen|VTS eCharge|Wallbe|Wallbox|wallbox GmbH|Walther-Werker|Webasto|WEEYU|Weidmüller|XCharge|Zaptec|Zerova)
+    Hersteller: list(ABB|ABL|Alfen|Alphatec|alpitronic|Ambibox|Amina|Amperfied|AMPURE|APsystems|Audi|Autel|Autoaid|Bauer|Bender|Benning|Berger|Berner|Blaupunkt|BMW|cFos eMobility|Charge Amps|Clemap|Compleo|Compleo / Innogy|ctek|Cubos|Cupra|Dadapower|DaheimLaden|Dazebox|Delta|Dezony|E.ON|E3DC|easee|EATON|ebee|echarge|EcoHarmony|ECONG|ecotap|Edgetech|Elexon|Elinta Charge|Elli|Elli (VW)|Elmi Power|EM2GO|Enelion|Enercab|Enovates|Enphase|Ensto|Entratek|ESL|Eta Plus|Etrel|EV body|EVBox|Evect|EVSE|EVTAP|EVTEC AG|EWE Go|FBT New Energy|Fox ESS|Free2move|Fronius|GARO|getpower|GL Charge GlowBox|go-e|Hager|HAPO Energy|Hardy Barth|Heidelberg|Hesotech|Homecharge|Honda|i-CHARGE|ies|Innogy|INRO|IO Charger|Joint|JUICE|Juice Technology|Kathrein eMobility|Kathrein KWB|Kontron / Steca|KOSTAD UNITY|Kostal|KREISEL Electric|LADE|LadeFoxx|Lektri|Mennekes|Metron|myenergi|myenergy|NeCharge|neoom|NRGkick|OBO Bettermann|OCPP|Ohme|OpenEVSE|openWB|Optec|Optec / Garo|Orbis|PANTABOX|Partino|PCE|Peblar|Phoenix Contact|PION|Porsche|POWERJames|Pracht|Pulsares|PUMP|Raedian|Rheinmetall|RZB Energy|Scapo|Schneider Electric|Schrack|SENEC|Siemens|Sigenergy|Skoda|SMA|Smart-me|Smartfox|SolarEdge|SOLARWATT|Solax|Sonnen|Spelsberg|Stöhr|sun2wheel|Sungrow|Technagon|TechniSat|Technivolt|Teltonika|Tesla|Tigo|TinkerForge|Ubitricity|Vestel|Victron Energy|Viessmann|VOITAS|Volkswagen|VTS eCharge|Wallbe|Wallbox|wallbox GmbH|Walther-Werker|Webasto|WEEYU|Weidmüller|XCharge|Zaptec|Zerova)?
     Sensor: str
     Auto anwesend (Binärsensor): str
     Mindestleistung in kW: float
@@ -59,33 +59,30 @@ schema:
 
 options:
   Auflösung: "1 Minute"
-  HEMS:
-    Hersteller: "eigene"
-    Wechselrichter: "E3DC"
-    PV Leistung: "sensor.s10_451517000332_pv_power"
-    Netz gesamt (negativ = Einspeisung): "sensor.s10_451517000332_grid_power"
+  HEMS: {}
+  Zähler:
+    Netz gesamt (negativ = Einspeisung): ""
     Netz Bezug (nur bei getrennten Sensoren): ""
     Netz Einspeisung (nur bei getrennten Sensoren): ""
-    Hausverbrauch: "sensor.s10_451517000332_home_power"
+    Hausverbrauch: ""
+  Wechselrichter:
+    PV Leistung: ""
   Speicher:
-    Hersteller: "E3/DC"
-    Kapazität in kWh: 4.8
-    Ladeleistung in kW: 4.6
-    Entladeleistung in kW: 4.6
+    Kapazität in kWh: 0.0
+    Ladeleistung in kW: 0.0
+    Entladeleistung in kW: 0.0
     Wirkungsgrad in %: 95
   Wärmepumpe:
-    Hersteller: "Alpha Innotec"
-    Sensor: "sensor.luxtronik_0_00_current_power_consumption"
+    Sensor: ""
     Mindestleistung in kW: 0.5
-    Höchstleistung in kW: 2.5
+    Höchstleistung in kW: 2.0
   Wallbox:
-    Hersteller: "E3DC"
-    Sensor: "sensor.s10_451517000332_wallbox_power"
-    Auto anwesend (Binärsensor): "binary_sensor.wallbox_auto_verbunden"
+    Sensor: ""
+    Auto anwesend (Binärsensor): ""
     Mindestleistung in kW: 1.0
     Höchstleistung in kW: 11.0
   Tarif:
-    Preis Bezug (Sensor): "sensor.netzentgelt_ss14a_modul_3"
+    Preis Bezug (Sensor): ""
     Einspeisung: "Einspeisevergütung"
     Sensor Einspeisung (nur bei Direktvermarktung): ""
     Feste Vergütung in €/kWh (nur bei Einspeisevergütung): 0.124
