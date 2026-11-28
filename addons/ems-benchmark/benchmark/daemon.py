@@ -21,7 +21,7 @@ from benchmark import ha, quality, store, push, userconfig, series
 from benchmark.manufacturers import MANUFACTURERS
 from benchmark.model import BenchConfig, BatteryConfig, DeviceLimits, DayData, run_day
 
-BENCHMARK_VERSION = "0.9.4"
+BENCHMARK_VERSION = "0.9.5"
 DATA_DIR = os.environ.get("BENCH_DATA", "/data")
 OPTIONS_FILE = os.environ.get("BENCH_OPTIONS", "/data/options.json")
 
@@ -257,20 +257,33 @@ def run_one_day(con, o: dict, day: dtm.date, tz):
         store.save_skipped(con, day.isoformat(), BENCHMARK_VERSION, res_sec, flags)
         return None
 
+    # Realer Speicher-Durchsatz aus der Leistungsbilanz (κ auf beiden Seiten)
+    batt_net = (tr["imp"] + tr["pv"] - tr["base_load"] - tr["hp"]
+                - tr["wb"] - tr["exp"])
+    real_thr = float(np.sum(np.abs(np.nan_to_num(batt_net)))) * dt_h
+    # SOC-Fenster: Optimum startet/endet auf dem real gemessenen Ladezustand
+    soc_sf, soc_ef = 0.5, 0.5
+    soc = tr.get("soc")
+    if soc is not None and np.any(np.isfinite(soc)):
+        finite = soc[np.isfinite(soc)]
+        soc_sf = float(np.clip(finite[0] / 100.0, 0.0, 1.0))
+        soc_ef = float(np.clip(finite[-1] / 100.0, 0.0, 1.0))
     dd = DayData(
         pv=tr["pv"], base_load=tr["base_load"],
         price_imp=tr["price_imp"], price_exp=tr["price_exp"],
         hp_energy_kwh=float(np.sum(tr["hp"])) * dt_h,
         wb_energy_kwh=float(np.sum(tr["wb"])) * dt_h,
         wb_window=tr["window"],
-        grid_import=tr["imp"], grid_export=tr["exp"], dt_h=dt_h)
+        grid_import=tr["imp"], grid_export=tr["exp"], dt_h=dt_h,
+        real_battery_throughput_kwh=real_thr)
     b = o["battery"]
     cfg = BenchConfig(
         battery=BatteryConfig(
             capacity_kwh=float(b["capacity_kwh"]),
             p_charge_max=float(b["p_charge_max"]),
             p_discharge_max=float(b["p_discharge_max"]),
-            eta=float(b.get("eta", 1.0))),
+            eta=float(b.get("eta", 1.0)),
+            soc_start_frac=soc_sf, soc_end_frac=soc_ef),
         hp=DeviceLimits(p_min=o["hp"]["p_min"], p_max=o["hp"]["p_max"]),
         wb=DeviceLimits(p_min=o["wallbox"]["p_min"], p_max=o["wallbox"]["p_max"]),
         kappa=o["kappa"])

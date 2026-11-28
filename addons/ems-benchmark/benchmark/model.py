@@ -1,7 +1,9 @@
 """EMS-Benchmark core: oracle MILP + real cost + quotient.
 
-Per-day experiment, 50/50 battery rule:
-  battery starts AND ends the day at 50% SOC, free optimization in between.
+Per-day experiment, measured-SOC-window rule:
+  battery starts AND ends the day at the REAL measured SOC (fallback 50/50
+  when no SOC sensor), free optimization in between. Both sides pay kappa
+  (grid cost + battery wear), so the comparison is apples-to-apples.
 
 Variables per slot t (0..N-1):
   g[t]  grid import [kW]        e[t]  feed-in [kW]
@@ -38,6 +40,8 @@ class DayData:
     grid_import: np.ndarray   # [kW]
     grid_export: np.ndarray   # [kW]
     dt_h: float               # slot length in hours
+    # gemessener Speicher-Durchsatz [kWh]; -1 = unbekannt -> Real zahlt kein κ
+    real_battery_throughput_kwh: float = -1.0
 
     @property
     def n(self):
@@ -214,6 +218,9 @@ def run_day(dd: DayData, cfg: BenchConfig) -> DayResult:
     oracle_cost = float(res.fun)
     real_cost = float(np.sum(dd.price_imp * dd.grid_import * dt
                              - dd.price_exp * dd.grid_export * dt))
+    if dd.real_battery_throughput_kwh >= 0:
+        # Verschleiß symmetric: Real zahlt κ auf den eigenen gemessenen Durchsatz
+        real_cost += cfg.kappa * dd.real_battery_throughput_kwh
     thr = float(np.sum((x[ix["c"]] + x[ix["d"]])) * dt)
     q = oracle_cost / real_cost if real_cost != 0 else float("nan")
     return DayResult(

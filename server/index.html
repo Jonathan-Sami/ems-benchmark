@@ -210,7 +210,9 @@ summary{cursor:pointer;font-weight:700;font-size:14.5px;padding:10px 0}
     <span class="chip c-min">über 24&nbsp;h minimieren</span>
   </div>
   <p class="note">Der kleine Verschleiß-Aufschlag verhindert, dass die Batterie für halbe Cent hin und
-  her zykelt — das Optimum bleibt ehrlich, nicht nur rechnerisch gut.</p>
+  her zykelt — das Optimum bleibt ehrlich, nicht nur rechnerisch gut. Er wird beiden Seiten angerechnet:
+  das Optimum zahlt κ auf seinen geplanten Durchsatz, die Realität auf den gemessenen — damit ein
+  perfekt fahrender EMS-Index nicht künstlich über 100&nbsp;% läuft.</p>
 
   <details><summary>Für Neugierige: die Formel im Detail</summary>
   <p>Der Tag wird in <i>T</i> Slots der Länge Δt zerlegt (Standard: 1 Minute, 1440 Slots). In jedem
@@ -224,7 +226,8 @@ summary{cursor:pointer;font-weight:700;font-size:14.5px;padding:10px 0}
 
   <span class="var">pv<sub>t</sub> + g<sub>t</sub> + d<sub>t</sub> = L<sub>t</sub> + e<sub>t</sub> + c<sub>t</sub> + w<sub>t</sub> + h<sub>t</sub></span>     <span class="cm">· Energiebilanz je Slot</span>
   <span class="var">E<sub>t+1</sub> = E<sub>t</sub> + η·c<sub>t</sub>·Δt − d<sub>t</sub>·Δt/η</span>                <span class="cm">· Speicherdynamik mit Wirkungsgrad η</span>
-  <span class="var">E<sub>min</sub> ≤ E<sub>t</sub> ≤ E<sub>max</sub>,   E<sub>0</sub> = E<sub>T</sub> = 50 %</span>         <span class="cm">· geschlossenes Tagesexperiment</span>
+  <span class="var">E<sub>min</sub> ≤ E<sub>t</sub> ≤ E<sub>max</sub>,   E<sub>0</sub> = E<sub>Start</sub>,  E<sub>T</sub> = E<sub>Ende</sub></span>   <span class="cm">· Optimum startet/endet auf dem real</span>
+                                       <span class="cm">  gemessenen Ladezustand (ohne Sensor: 50 %)</span>
   <span class="var">Σ h<sub>t</sub>·Δt = W<sub>WP</sub>,   h<sub>t</sub> ∈ {0} ∪ [p̲<sub>WP</sub>, p̄<sub>WP</sub>]</span>       <span class="cm">· WP: gemessene Wärmemenge, frei</span>
                                        <span class="cm">  verschiebbar, reale Mindestleistung</span>
   <span class="var">Σ w<sub>t</sub>·Δt = W<sub>WB</sub>,  w<sub>t</sub> ∈ {0} ∪ [1; 11] kW</span>        <span class="cm">· Wallbox: Energie erhalten, nur im</span>
@@ -240,7 +243,7 @@ summary{cursor:pointer;font-weight:700;font-size:14.5px;padding:10px 0}
   <h2>Welche Physik das Optimum einhalten muss</h2>
   <div class="steps four">
     <div class="step"><div class="sicon">⚖️</div><b>Energiebilanz</b><p>Jede Minute: Erzeugung + Entladung = Verbrauch + Ladung + Einspeisung. Nichts entsteht, nichts verschwindet.</p></div>
-    <div class="step"><div class="sicon">🔋</div><b>Speicher 50&nbsp;→&nbsp;50</b><p>Der Tag beginnt und endet halb voll — jeder Tag ist ein faires, in sich geschlossenes Experiment.</p></div>
+    <div class="step"><div class="sicon">🔋</div><b>Speicher: gemessenes Fenster</b><p>Das Optimum startet und endet auf exakt dem Ladezustand, den dein Speicher real hatte — beide Seiten spielen mit derselben Energie. Ohne SOC-Sensor gilt halb&nbsp;voll als Anker.</p></div>
     <div class="step"><div class="sicon">♨️</div><b>Wärmepumpe</b><p>Genau die real gemessene Wärmemenge — aber frei im Tag verschiebbar, in Blöcken zwischen Mindest- und Maximalleistung.</p></div>
     <div class="step"><div class="sicon">🚗</div><b>Wallbox</b><p>Genau die real geflossene Ladeenergie — nur in dem Fenster, in dem das Auto wirklich verbunden war.</p></div>
   </div>
