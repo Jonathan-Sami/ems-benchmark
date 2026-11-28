@@ -1,6 +1,6 @@
 name: EMS Benchmark
 description: Unabhängiger Blackbox-Benchmark für Heim-Energiemanagementsysteme
-version: "0.9.5"
+version: "0.10.7"
 slug: ems-benchmark
 url: https://github.com/Jonathan-Sami/ems-benchmark
 arch:
@@ -18,6 +18,9 @@ ports_description:
   8091/tcp: Dashboard (Port ggf. im Netzwerk-Tab anpassen)
 
 ingress: true
+mqtt: true
+map:
+  - homeassistant_config:ro
 ingress_port: 8091
 panel_icon: mdi:sword-cross
 panel_title: "EMS-Benchmark"
@@ -40,7 +43,7 @@ schema:
     Ladeleistung in kW: float
     Entladeleistung in kW: float
     Wirkungsgrad in %: int(1,100)
-    Ladezustand in % (Sensor): str?
+    Ladezustand in % (Sensor): str
   Wärmepumpe:
     Hersteller: list(1 Eco Design GmbH|Acalor|AEG Haustechnik|Aira|AISIN|Akvaterm|Alpha Innotec|Andivi|aqotec|Atlantic|Austria Email|Beglau|Bosch|Broetje|Buderus|Carrier|Consolar|CTA|CTC|Daikin|Dimplex|Drexel + Weiss|Dürr thermea|Ecoforest|ELCO|emcal|FläktGroup|Gorenje|Guangdong New Energy / Newntide|Haier|heatrex|Heliotherm|HIDROS|Hisense|Hoval|iDM|Junkers|Kampmann|Kermi|KNV|Kronoterm|LAMBDA|LG|M-TEC|MHG Heiztechnik|Michl Technik|Midea|Mitsubishi|Nefit|NIBE|Nilan|Novelan|Ochsner|Oertli|Panasonic|PEGO|Phnix|ratiotherm|Remeha|REMKO|ROTEX (Werk stillgelegt)|Roth Werke|S+W|Samsung|Saunier Duval|Schneider Electric|Siemens|SmartHeat|SOLARFOCUS|Solvis|SONNENKRAFT|Stiebel Eltron|Stulz|Systemair|tecalor|TEDOM|Thermia|Thermotion|Trane|Vaillant|Viessmann|Waterkote|Waterkotte|Weishaupt|Wolf|Worcester Bosch|Yanmar|Ygnis)?
     Sensor: str
@@ -57,6 +60,7 @@ schema:
     Einspeisung: list(Direktvermarktung|Einspeisevergütung)
     Sensor Einspeisung (nur bei Direktvermarktung): str?
     Feste Vergütung in €/kWh (nur bei Einspeisevergütung): float?
+  MQTT Sensoren: bool
 
 options:
   Auflösung: "1 Minute"
@@ -88,3 +92,4 @@ options:
     Einspeisung: "Einspeisevergütung"
     Sensor Einspeisung (nur bei Direktvermarktung): ""
     Feste Vergütung in €/kWh (nur bei Einspeisevergütung): 0.124
+  MQTT Sensoren: false

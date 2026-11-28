@@ -152,6 +152,17 @@ HTML = """<!doctype html><html lang="de"><head><meta charset="utf-8">
 
 <div class="card">
  <div class="controls">
+  <h3 style="margin:0">Tagesverlauf</h3>
+  <select class="dsel" id="dsel"></select>
+  <span class="dseg"><button id="mreal" class="on">Real</button><button id="mopt">Optimum</button></span>
+  <span class="note" id="dnote"></span>
+ </div>
+ <div class="dwrap"><canvas id="dayc"></canvas></div>
+ <div class="dkpis" id="dkpis"></div>
+</div>
+
+<div class="card">
+ <div class="controls">
   <span class="seg">
    <button data-p="tag">Tag</button><button data-p="woche" class="on">Woche</button><button data-p="monat">Monat</button><button data-p="jahr">Jahr</button>
   </span>
@@ -161,17 +172,6 @@ HTML = """<!doctype html><html lang="de"><head><meta charset="utf-8">
  <div class="kpis" id="kpis"></div>
  <div class="legend"><span><i style="background:var(--orange)"></i>Real</span><span><i style="background:var(--green)"></i>Optimum (theoretisch)</span></div>
  <div id="chart"></div>
-</div>
-
-<div class="card">
- <div class="controls">
-  <h3 style="margin:0">Tagesverlauf</h3>
-  <select class="dsel" id="dsel"></select>
-  <span class="dseg"><button id="mreal" class="on">Real</button><button id="mopt">Optimum</button></span>
-  <span class="note" id="dnote"></span>
- </div>
- <div class="dwrap"><canvas id="dayc"></canvas></div>
- <div class="dkpis" id="dkpis"></div>
 </div>
 
 <div class="card">
@@ -330,7 +330,12 @@ async function loadDay(d){
  catch(e){SER=null}
  if(SER&&SER.error)SER.error='Für '+d+' liegen keine Zeitreihen vor (Tag wurde vor v0.9.0 bewertet).';
  drawDay()}
-function drawDay(){
+const crosshair={id:'crosshair',afterDatasetsDraw(c){const t=c.tooltip;
+ if(t&&t.opacity>0&&t.getActiveElements().length){const x=t.getActiveElements()[0].element.x,a=c.chartArea,g=c.ctx;
+  g.save();g.beginPath();g.moveTo(x,a.top);g.lineTo(x,a.bottom);g.lineWidth=1;g.setLineDash([4,4]);
+  g.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--mut').trim()||'#888';
+  g.stroke();g.restore()}}};
+function drawDay(rebuild){
  const note=document.getElementById('dnote'),k=document.getElementById('dkpis');
  if(!SER||SER.error){if(DAYCH){DAYCH.destroy();DAYCH=null}
   note.textContent=SER&&SER.error?SER.error:'Keine Zeitreihen.';k.innerHTML='';return}
@@ -352,27 +357,35 @@ function drawDay(){
   yAxisID:d.axis,fill:!!d.fill,stepped:!!d.step,pointRadius:0,borderWidth:d.step?1.2:1.7,
   borderDash:d.dash?[6,3]:[],backgroundColor:d.c+(d.soft?'26':(d.fill?'40':'')),
   tension:.25,_kwh:(d.k==='price'||d.k==='soc')?null:kwh(arr)}});
+ if(DAYCH&&!rebuild&&DAYCH.data.datasets.length===ds.length){
+  DAYCH.data.datasets.forEach((s,i)=>{s.data=ds[i].data;s._kwh=ds[i]._kwh});
+  DAYCH.update();drawKpis();return}
  const dark=document.documentElement.classList.contains('dark');
  const grid=dark?'#39424e':'#e2e8f0',tick=dark?'#9aa7b4':'#64748b';
  if(DAYCH)DAYCH.destroy();
- DAYCH=new Chart(document.getElementById('dayc'),{type:'line',
+ DAYCH=new Chart(document.getElementById('dayc'),{type:'line',plugins:[crosshair],
   data:{labels:SER.t.map(dfmt),datasets:ds},
-  options:{responsive:true,maintainAspectRatio:false,animation:{duration:450},
+  options:{responsive:true,maintainAspectRatio:false,
+   animation:{duration:900,easing:'easeOutQuart',
+    delay:ctx=>ctx.type==='data'&&ctx.mode==='default'?ctx.datasetIndex*60:0},
    interaction:{mode:'index',intersect:false},
    plugins:{legend:{labels:{color:tick,usePointStyle:true,boxWidth:8,padding:11,
      generateLabels:c=>c.data.datasets.map((s,i)=>({text:s.label+(s._kwh!=null?' · '+s._kwh.toFixed(1).replace('.',',')+' kWh':''),
       fillStyle:s.borderColor,strokeStyle:s.borderColor,fontColor:tick,
       hidden:!c.isDatasetVisible(i),datasetIndex:i}))}},
-    tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(2).replace('.',',')+
-      (c.dataset.yAxisID==='y1'?' %':(c.dataset.yAxisID==='yP'?' €/kWh':' kW'))}}},
+    tooltip:{callbacks:{label:c=>c.parsed.y.toFixed(2).replace('.',',')+
+      (c.dataset.yAxisID==='y1'?' %':(c.dataset.yAxisID==='yP'?' €/kWh':' kW'))},
+     itemSort:(a,b)=>b.parsed.y-a.parsed.y}},
    scales:{x:{ticks:{color:tick,maxTicksLimit:13},grid:{color:grid}},
     y:{position:'left',title:{display:true,text:'kW',color:tick},grid:{color:grid},ticks:{color:tick}},
     y1:{position:'right',min:0,max:100,title:{display:true,text:'%',color:tick},
         grid:{drawOnChartArea:false},ticks:{color:tick}},
     yP:{display:false,min:0,max:(Math.max(...SER.price)||0.01)*3.2}}}});
  note.textContent='Auflösung '+SER.res_sec+' s · Klick auf Legende blendet aus';
- const R=SER.kpi.real,O=SER.kpi.opt;
- const row=(lab,rv,ov)=>`<div class="dkpi"><span>${lab}</span><b>${rv}</b><i>Optimum: ${ov}</i></div>`;
+ drawKpis()}
+function drawKpis(){const k=document.getElementById('dkpis'),R=SER.kpi.real,O=SER.kpi.opt;
+ let i=0;
+ const row=(lab,rv,ov)=>`<div class="dkpi" style="animation-delay:${i++*70}ms"><span>${lab}</span><b>${rv}</b><i>Optimum: ${ov}</i></div>`;
  k.innerHTML=row('Autarkie',p1(R.autarky),p1(O.autarky))
   +row('Eigenverbrauch',p1(R.eigen),p1(O.eigen))
   +row('Netzbezug',kfmt(R.imp_kwh),kfmt(O.imp_kwh))
@@ -389,7 +402,7 @@ dsel.innerHTML=ddays.map(d=>`<option value="${d}">${d}</option>`).join('');
 if(ddays.length){dsel.value=ddays[0];loadDay(ddays[0])}
 else document.getElementById('dnote').textContent='Noch keine bewerteten Tage.';
 dsel.onchange=()=>loadDay(dsel.value);
-new MutationObserver(()=>{if(SER&&!SER.error)drawDay()})
+new MutationObserver(()=>{if(SER&&!SER.error)drawDay(true)})
  .observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 render();
 </script></body></html>"""

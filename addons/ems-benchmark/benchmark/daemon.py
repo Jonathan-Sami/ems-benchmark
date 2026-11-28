@@ -21,7 +21,7 @@ from benchmark import ha, quality, store, push, userconfig, series
 from benchmark.manufacturers import MANUFACTURERS
 from benchmark.model import BenchConfig, BatteryConfig, DeviceLimits, DayData, run_day
 
-BENCHMARK_VERSION = "0.9.5"
+BENCHMARK_VERSION = "0.10.7"
 DATA_DIR = os.environ.get("BENCH_DATA", "/data")
 OPTIONS_FILE = os.environ.get("BENCH_OPTIONS", "/data/options.json")
 
@@ -84,6 +84,7 @@ def _run_opts_v6(raw: dict) -> dict:
         eff /= 100.0
     return {
         "resolution_sec": max(10, min(int(res), 600)),
+        "mqtt": bool(raw.get("MQTT Sensoren", False)),
         "min_coverage": MIN_COVERAGE,
         "kappa": KAPPA_EUR_PER_KWH,
         "price_exp_fixed": ("" if modus == "Direktvermarktung"
@@ -261,13 +262,17 @@ def run_one_day(con, o: dict, day: dtm.date, tz):
     batt_net = (tr["imp"] + tr["pv"] - tr["base_load"] - tr["hp"]
                 - tr["wb"] - tr["exp"])
     real_thr = float(np.sum(np.abs(np.nan_to_num(batt_net)))) * dt_h
-    # SOC-Fenster: Optimum startet/endet auf dem real gemessenen Ladezustand
-    soc_sf, soc_ef = 0.5, 0.5
+    # SOC-Fenster: Optimum startet/endet auf dem real gemessenen Ladezustand.
+    # Pflicht seit v0.10: ohne Ladezustand-Sensor wird der Tag verworfen.
     soc = tr.get("soc")
-    if soc is not None and np.any(np.isfinite(soc)):
-        finite = soc[np.isfinite(soc)]
-        soc_sf = float(np.clip(finite[0] / 100.0, 0.0, 1.0))
-        soc_ef = float(np.clip(finite[-1] / 100.0, 0.0, 1.0))
+    if soc is None or not np.any(np.isfinite(soc)):
+        print(f"{day}: SKIPPED — Ladezustand-Sensor fehlt oder ohne Daten")
+        store.save_skipped(con, day.isoformat(), BENCHMARK_VERSION, res_sec,
+                           {"coverage": 0.0, "reason": "Ladezustand-Sensor fehlt"})
+        return None
+    finite = soc[np.isfinite(soc)]
+    soc_sf = float(np.clip(finite[0] / 100.0, 0.0, 1.0))
+    soc_ef = float(np.clip(finite[-1] / 100.0, 0.0, 1.0))
     dd = DayData(
         pv=tr["pv"], base_load=tr["base_load"],
         price_imp=tr["price_imp"], price_exp=tr["price_exp"],
@@ -299,6 +304,12 @@ def run_one_day(con, o: dict, day: dtm.date, tz):
                           series.build_series(day, res_sec, tr, dd, result, o))
     except Exception as e:
         print(f"{day}: Zeitserien fehlgeschlagen: {e}")
+    if o.get("mqtt"):
+        try:
+            from benchmark import mqtt as _mqtt
+            _mqtt.publish_all(os.path.join(DATA_DIR, "bench.db"))
+        except Exception as e:
+            print(f"{day}: MQTT fehlgeschlagen: {e}")
     return result
 
 

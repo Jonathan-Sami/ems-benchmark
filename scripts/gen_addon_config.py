@@ -20,7 +20,7 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent.parent
 M = json.load(open(BASE / "server/manufacturers.json"))
 
-VER = "0.9.5"
+VER = "0.10.7"
 
 # Kais Geräteangaben exakt gegen die Listen normalisieren
 def exact(lst, want):
@@ -86,6 +86,8 @@ L.append("ports:\n  8091/tcp: 8091")
 L.append("ports_description:\n  8091/tcp: Dashboard (Port ggf. im Netzwerk-Tab anpassen)")
 L.append("")
 L.append("ingress: true")
+L.append("mqtt: true")
+L.append("map:\n  - homeassistant_config:ro")
 L.append("ingress_port: 8091")
 L.append("panel_icon: mdi:sword-cross")
 L.append('panel_title: "EMS-Benchmark"')
@@ -108,7 +110,7 @@ L.append("    Kapazität in kWh: float")
 L.append("    Ladeleistung in kW: float")
 L.append("    Entladeleistung in kW: float")
 L.append("    Wirkungsgrad in %: int(1,100)")
-L.append('    Ladezustand in % (Sensor): str?')
+L.append('    Ladezustand in % (Sensor): str')
 L.append("  Wärmepumpe:")
 L.append("    Hersteller: " + listtype(LISTMAP["Wärmepumpe"]) + "?")
 L.append("    Sensor: str")
@@ -125,6 +127,7 @@ L.append("    Preis Bezug (Sensor): str")
 L.append("    Einspeisung: list(Direktvermarktung|Einspeisevergütung)")
 L.append("    Sensor Einspeisung (nur bei Direktvermarktung): str?")
 L.append("    Feste Vergütung in €/kWh (nur bei Einspeisevergütung): float?")
+L.append("  MQTT Sensoren: bool")
 L.append("")
 # Release-Defaults: bewusst leer/nutral. Die Supervisor-Optionen überleben
 # Updates — wer etwas einstellt, behält es. Kais eigene Werte stehen NUR in
@@ -159,6 +162,7 @@ L.append('    Preis Bezug (Sensor): ""')
 L.append('    Einspeisung: "Einspeisevergütung"')
 L.append('    Sensor Einspeisung (nur bei Direktvermarktung): ""')
 L.append("    Feste Vergütung in €/kWh (nur bei Einspeisevergütung): 0.124")
+L.append("  MQTT Sensoren: false")
 L.append("")
 
 out = "\n".join(L)
@@ -167,7 +171,7 @@ for fn in ("configuration.yaml", "config.yaml"):
 print(f"geschrieben: addons/ems-benchmark/configuration.yaml + config.yaml ({len(out)} Zeichen)")
 
 # Schema-konforme Optionen fürs POST an den Supervisor (Kais Anlage)
-opts = {"options": {
+opts = {"options": {"MQTT Sensoren": True,
     "Auflösung": "1 Minute",
     "HEMS": {"Hersteller": KAIS["HEMS"]},
     "Zähler": {
