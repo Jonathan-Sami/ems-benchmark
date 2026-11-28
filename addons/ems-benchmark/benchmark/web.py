@@ -33,19 +33,25 @@ LOGO = ('<svg viewBox="0 0 512 512" fill="none" stroke-linecap="round" '
 CSS = """
 :root{--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--bg:#f4f6f9;--card:#ffffff;
 --green:#10b981;--orange:#f97316;--red:#ef4444;--amber:#f59e0b;
+--c-price:#94a3b8;--c-soc:#86efac;--c-pv:#f59e0b;--c-base:#ef4444;--c-hp:#e11d48;
+--c-wb:#8b5cf6;--c-bc:#65a30d;--c-bd:#22c55e;--c-imp:#0ea5e9;--c-exp:#14b8a6;
 --seg:#eef1f6;--seg-on:#ffffff;--hover:#f8fafc;--kpi1:#ffffff;--kpi2:#fbfcfe;
---btn-bg:var(--ink);--btn-fg:#fff;--input-bg:#fff;--grid:#eef1f6;--tip-bg:#0f172a;--tip-fg:#fff;
+--btn-bg:var(--ink);--btn-fg:#fff;--btn-bd:transparent;--input-bg:#fff;--grid:#eef1f6;--tip-bg:#0f172a;--tip-fg:#fff;
 --shadow:0 1px 2px rgba(15,23,42,.05),0 8px 24px -12px rgba(15,23,42,.12)}
-@media (prefers-color-scheme: dark){:root:not(.light){--ink:#e6e9ec;--mut:#9aa7b4;--line:#39424e;--bg:#0d1117;--card:#161b22;
---seg:#1c2128;--seg-on:#2d333b;--hover:#1c2128;--kpi1:#191f27;--kpi2:#12171e;
---btn-bg:#e6e9ec;--btn-fg:#0f172a;--input-bg:#0d1117;--grid:#21262d;--tip-bg:#2d333b;--tip-fg:#e6e9ec;
+@media (prefers-color-scheme: dark){:root:not(.light){--ink:#dce3ea;--mut:#94a1b0;--line:#2a333f;--bg:#0f141a;--card:#171e27;
+--c-price:#5b6675;--c-soc:#5ecf92;--c-pv:#d9a441;--c-base:#d97b7b;--c-hp:#d95c78;
+--c-wb:#a78bda;--c-bc:#84a95c;--c-bd:#5fbf7a;--c-imp:#5aa9d6;--c-exp:#4fb3a5;
+--seg:#1d2530;--seg-on:#2a3441;--hover:#1d2530;--kpi1:#1a222c;--kpi2:#141b23;
+--btn-bg:#1d2530;--btn-fg:#dce3ea;--btn-bd:#33404f;--input-bg:#121922;--grid:#232d39;--tip-bg:#2a3441;--tip-fg:#dce3ea;
 --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px -12px rgba(0,0,0,.6)}
 :root:not(.light) .idx.good{background:#0d3323;color:#4ade80}
 :root:not(.light) .idx.mid{background:#3a2b0d;color:#fbbf24}
 :root:not(.light) .idx.bad{background:#3a1214;color:#f87171}}
-html.dark{--ink:#e6e9ec;--mut:#9aa7b4;--line:#39424e;--bg:#0d1117;--card:#161b22;
---seg:#1c2128;--seg-on:#2d333b;--hover:#1c2128;--kpi1:#191f27;--kpi2:#12171e;
---btn-bg:#e6e9ec;--btn-fg:#0f172a;--input-bg:#0d1117;--grid:#21262d;--tip-bg:#2d333b;--tip-fg:#e6e9ec;
+html.dark{--ink:#dce3ea;--mut:#94a1b0;--line:#2a333f;--bg:#0f141a;--card:#171e27;
+--c-price:#5b6675;--c-soc:#5ecf92;--c-pv:#d9a441;--c-base:#d97b7b;--c-hp:#d95c78;
+--c-wb:#a78bda;--c-bc:#84a95c;--c-bd:#5fbf7a;--c-imp:#5aa9d6;--c-exp:#4fb3a5;
+--seg:#1d2530;--seg-on:#2a3441;--hover:#1d2530;--kpi1:#1a222c;--kpi2:#141b23;
+--btn-bg:#1d2530;--btn-fg:#dce3ea;--btn-bd:#33404f;--input-bg:#121922;--grid:#232d39;--tip-bg:#2a3441;--tip-fg:#dce3ea;
 --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px -12px rgba(0,0,0,.6)}
 html.dark .idx.good{background:#0d3323;color:#4ade80}
 html.dark .idx.mid{background:#3a2b0d;color:#fbbf24}
@@ -54,13 +60,14 @@ html.dark .idx.bad{background:#3a1214;color:#f87171}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 background-image:radial-gradient(1200px 500px at 85% -160px,rgba(16,185,129,.10),transparent 60%),
 radial-gradient(900px 420px at -10% -140px,rgba(249,115,22,.08),transparent 60%)}
-.wrap{max-width:980px;margin:0 auto;padding:26px 20px 60px}
+.wrap{max-width:1360px;margin:0 auto;padding:26px 28px 60px}
 header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.3px}
 .brand svg{width:30px;height:30px}
 .verchip{font-size:11.5px;font-weight:700;color:var(--mut);background:var(--card);border:1px solid var(--line);
 border-radius:99px;padding:2px 10px;margin-left:2px;vertical-align:2px}
 .sitebtn{display:inline-flex;align-items:center;gap:9px;background:var(--btn-bg);color:var(--btn-fg);text-decoration:none;
+border:1px solid var(--btn-bd);
 font-weight:700;font-size:14.5px;padding:11px 20px;border-radius:99px;
 transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s;box-shadow:0 10px 26px -12px rgba(15,23,42,.5)}
 .sitebtn:hover{transform:translateY(-3px);box-shadow:0 18px 34px -14px rgba(15,23,42,.55)}
@@ -90,7 +97,13 @@ padding:7px 10px;font:inherit;font-size:13.5px;cursor:pointer}
 background:var(--bg);animation:fadeup .5s both}
 .dkpi span{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em}
 .dkpi b{font-size:17px}.dkpi i{font-size:12px;color:var(--mut);font-style:normal}
-.dwrap{position:relative;height:360px}
+.dwrap{position:relative;height:400px}
+.dlegend{display:flex;flex-wrap:wrap;gap:7px 18px;font-size:12.5px;color:var(--mut);margin:12px 2px 2px}
+.dlegend .li{display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none;transition:opacity .2s}
+.dlegend .li i{width:10px;height:10px;border-radius:3px;flex:none}
+.dlegend .li b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.dlegend .li.off{opacity:.38}
+.dlegend .li.time{cursor:default;color:var(--ink);font-weight:700;min-width:92px}
 input[type=date]{font:inherit;font-size:13.5px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--input-bg);color:var(--ink)}
 .note{color:var(--mut);font-size:12.5px}
 .bad{color:var(--red)}
@@ -158,6 +171,7 @@ HTML = """<!doctype html><html lang="de"><head><meta charset="utf-8">
   <span class="note" id="dnote"></span>
  </div>
  <div class="dwrap"><canvas id="dayc"></canvas></div>
+ <div class="dlegend" id="dlegend"></div>
  <div class="dkpis" id="dkpis"></div>
 </div>
 
@@ -330,38 +344,58 @@ async function loadDay(d){
  catch(e){SER=null}
  if(SER&&SER.error)SER.error='Für '+d+' liegen keine Zeitreihen vor (Tag wurde vor v0.9.0 bewertet).';
  drawDay()}
-const crosshair={id:'crosshair',afterDatasetsDraw(c){const t=c.tooltip;
- if(t&&t.opacity>0&&t.getActiveElements().length){const x=t.getActiveElements()[0].element.x,a=c.chartArea,g=c.ctx;
-  g.save();g.beginPath();g.moveTo(x,a.top);g.lineTo(x,a.bottom);g.lineWidth=1;g.setLineDash([4,4]);
-  g.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--mut').trim()||'#888';
-  g.stroke();g.restore()}}};
+let DAYIDX=null,LEGTOT=[];
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const DEFS=[
+ {k:'price',lab:'Strompreis (€/kWh)',v:'--c-price',axis:'yP',fill:1,step:1},
+ {k:'soc',lab:'Ladezustand (%)',v:'--c-soc',axis:'y1',fill:1,soft:1},
+ {k:'pv',lab:'PV-Leistung',v:'--c-pv',axis:'y'},
+ {k:'base',lab:'Hausverbrauch (Grundlast)',v:'--c-base',axis:'y'},
+ {k:'hp',lab:'Wärmepumpe',v:'--c-hp',axis:'y',dash:1},
+ {k:'wb',lab:'Wallbox',v:'--c-wb',axis:'y'},
+ {k:'bc',lab:'Speicher laden',v:'--c-bc',axis:'y'},
+ {k:'bd',lab:'Speicher entladen',v:'--c-bd',axis:'y'},
+ {k:'imp',lab:'Netzbezug',v:'--c-imp',axis:'y'},
+ {k:'exp',lab:'Netzeinspeisung',v:'--c-exp',axis:'y'}];
+function vfmt(k,v){if(v==null)return'–';const d=k==='price'?3:(k==='soc'?1:2);
+ return v.toFixed(d).replace('.',',')+(k==='price'?' €/kWh':(k==='soc'?' %':' kW'))}
+const crosshair={id:'crosshair',afterDatasetsDraw(c){if(DAYIDX==null)return;
+ const x=c.scales.x.getPixelForValue(DAYIDX),a=c.chartArea,g=c.ctx;
+ g.save();g.beginPath();g.moveTo(x,a.top);g.lineTo(x,a.bottom);g.lineWidth=1;g.setLineDash([4,4]);
+ g.strokeStyle=cssv('--mut')||'#888';g.stroke();g.restore()}};
+function arrOf(k){return k==='price'?SER.price:SER[DMODE][k]}
+function buildLegend(){const el=document.getElementById('dlegend');if(!el||!SER||SER.error)return;
+ el.innerHTML='<span class="li time" id="dtime">Tagessummen</span>'+DEFS.map((d,i)=>{
+  const t=LEGTOT[i];
+  return '<span class="li'+(DAYCH&&!DAYCH.isDatasetVisible(i)?' off':'')+'" data-i="'+i+
+   '"><i style="background:'+cssv(d.v)+'"></i>'+d.lab+' <b>'+
+   (t==null?'':t.toFixed(1).replace('.',',')+' kWh')+'</b></span>'}).join('');
+ el.querySelectorAll('.li[data-i]').forEach(s=>{s.onclick=()=>{const i=+s.dataset.i;
+  DAYCH.setDatasetVisibility(i,!DAYCH.isDatasetVisible(i));DAYCH.update();s.classList.toggle('off')}})}
+function updateLegendVals(){const el=document.getElementById('dlegend');if(!el||!SER||SER.error)return;
+ el.querySelectorAll('.li[data-i]').forEach(s=>{const i=+s.dataset.i;
+  s.querySelector('b').textContent=DAYIDX==null
+   ?(LEGTOT[i]==null?'':LEGTOT[i].toFixed(1).replace('.',',')+' kWh')
+   :vfmt(DEFS[i].k,arrOf(DEFS[i].k)[DAYIDX])});
+ const tm=document.getElementById('dtime');
+ if(tm)tm.textContent=DAYIDX==null?'Tagessummen':dfmt(SER.t[DAYIDX])}
 function drawDay(rebuild){
  const note=document.getElementById('dnote'),k=document.getElementById('dkpis');
  if(!SER||SER.error){if(DAYCH){DAYCH.destroy();DAYCH=null}
-  note.textContent=SER&&SER.error?SER.error:'Keine Zeitreihen.';k.innerHTML='';return}
- const S=SER[DMODE],dtH=SER.res_sec/3600;
+  note.textContent=SER&&SER.error?SER.error:'Keine Zeitreihen.';k.innerHTML='';
+  const el=document.getElementById('dlegend');if(el)el.innerHTML='';return}
+ const dtH=SER.res_sec/3600;
  const kwh=a=>a.reduce((x,y)=>x+y,0)*dtH;
- const defs=[
-  {k:'price',lab:'Strompreis (€/kWh)',c:'#94a3b8',axis:'yP',fill:1,step:1},
-  {k:'soc',lab:'Ladezustand (%)',c:'#86efac',axis:'y1',fill:1,soft:1},
-  {k:'pv',lab:'PV-Leistung',c:'#f59e0b',axis:'y'},
-  {k:'base',lab:'Hausverbrauch (Grundlast)',c:'#ef4444',axis:'y'},
-  {k:'hp',lab:'Wärmepumpe',c:'#e11d48',axis:'y',dash:1},
-  {k:'wb',lab:'Wallbox',c:'#8b5cf6',axis:'y'},
-  {k:'bc',lab:'Speicher laden',c:'#65a30d',axis:'y'},
-  {k:'bd',lab:'Speicher entladen',c:'#22c55e',axis:'y'},
-  {k:'imp',lab:'Netzbezug',c:'#0ea5e9',axis:'y'},
-  {k:'exp',lab:'Netzeinspeisung',c:'#14b8a6',axis:'y'}];
- const ds=defs.map(d=>{const arr=d.k==='price'?SER.price:S[d.k];return{
-  label:d.lab,data:arr,borderColor:d.c,
+ const ds=DEFS.map(d=>{const col=cssv(d.v)||'#888',arr=arrOf(d.k);return{
+  label:d.lab,data:arr,borderColor:col,
   yAxisID:d.axis,fill:!!d.fill,stepped:!!d.step,pointRadius:0,borderWidth:d.step?1.2:1.7,
-  borderDash:d.dash?[6,3]:[],backgroundColor:d.c+(d.soft?'26':(d.fill?'40':'')),
-  tension:.25,_kwh:(d.k==='price'||d.k==='soc')?null:kwh(arr)}});
+  borderDash:d.dash?[6,3]:[],backgroundColor:col+(d.soft?'26':(d.fill?'40':'')),tension:.25}});
+ LEGTOT=DEFS.map(d=>(d.k==='price'||d.k==='soc')?null:kwh(arrOf(d.k)));
+ DAYIDX=null;
  if(DAYCH&&!rebuild&&DAYCH.data.datasets.length===ds.length){
-  DAYCH.data.datasets.forEach((s,i)=>{s.data=ds[i].data;s._kwh=ds[i]._kwh});
-  DAYCH.update();drawKpis();return}
- const dark=document.documentElement.classList.contains('dark');
- const grid=dark?'#39424e':'#e2e8f0',tick=dark?'#9aa7b4':'#64748b';
+  DAYCH.data.datasets.forEach((s,i)=>{s.data=ds[i].data});
+  DAYCH.update();buildLegend();drawKpis();return}
+ const grid=cssv('--grid')||'#e2e8f0',tick=cssv('--mut')||'#64748b';
  if(DAYCH)DAYCH.destroy();
  DAYCH=new Chart(document.getElementById('dayc'),{type:'line',plugins:[crosshair],
   data:{labels:SER.t.map(dfmt),datasets:ds},
@@ -369,20 +403,19 @@ function drawDay(rebuild){
    animation:{duration:900,easing:'easeOutQuart',
     delay:ctx=>ctx.type==='data'&&ctx.mode==='default'?ctx.datasetIndex*60:0},
    interaction:{mode:'index',intersect:false},
-   plugins:{legend:{labels:{color:tick,usePointStyle:true,boxWidth:8,padding:11,
-     generateLabels:c=>c.data.datasets.map((s,i)=>({text:s.label+(s._kwh!=null?' · '+s._kwh.toFixed(1).replace('.',',')+' kWh':''),
-      fillStyle:s.borderColor,strokeStyle:s.borderColor,fontColor:tick,
-      hidden:!c.isDatasetVisible(i),datasetIndex:i}))}},
-    tooltip:{callbacks:{label:c=>c.parsed.y.toFixed(2).replace('.',',')+
-      (c.dataset.yAxisID==='y1'?' %':(c.dataset.yAxisID==='yP'?' €/kWh':' kW'))},
-     itemSort:(a,b)=>b.parsed.y-a.parsed.y}},
+   onHover:(e,els,ch)=>{const i=els.length?els[0].index:null;
+    if(i!==DAYIDX){DAYIDX=i;updateLegendVals();ch.draw()}},
+   plugins:{legend:{display:false},tooltip:{enabled:false}},
    scales:{x:{ticks:{color:tick,maxTicksLimit:13},grid:{color:grid}},
     y:{position:'left',title:{display:true,text:'kW',color:tick},grid:{color:grid},ticks:{color:tick}},
     y1:{position:'right',min:0,max:100,title:{display:true,text:'%',color:tick},
         grid:{drawOnChartArea:false},ticks:{color:tick}},
     yP:{display:false,min:0,max:(Math.max(...SER.price)||0.01)*3.2}}}});
- note.textContent='Auflösung '+SER.res_sec+' s · Klick auf Legende blendet aus';
+ buildLegend();
+ note.textContent='Auflösung '+SER.res_sec+' s · Hover zeigt Werte · Klick auf Legende blendet aus';
  drawKpis()}
+document.getElementById('dayc').addEventListener('mouseleave',()=>{
+ if(DAYIDX!==null){DAYIDX=null;updateLegendVals();if(DAYCH)DAYCH.draw()}});
 function drawKpis(){const k=document.getElementById('dkpis'),R=SER.kpi.real,O=SER.kpi.opt;
  let i=0;
  const row=(lab,rv,ov)=>`<div class="dkpi" style="animation-delay:${i++*70}ms"><span>${lab}</span><b>${rv}</b><i>Optimum: ${ov}</i></div>`;

@@ -1,6 +1,6 @@
 name: EMS Benchmark
 description: Unabhängiger Blackbox-Benchmark für Heim-Energiemanagementsysteme
-version: "0.10.8"
+version: "0.10.10"
 slug: ems-benchmark
 url: https://github.com/Jonathan-Sami/ems-benchmark
 arch:
