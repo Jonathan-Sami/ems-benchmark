@@ -10,19 +10,22 @@ import numpy as np
 
 def build_series(day, res_sec, tr, dd, result, o):
     n = dd.n
-    step = max(1, n // 1440)          # Anzeige auf max. 1440 Punkte verdichten
-    sl = slice(None, None, step)
+    step = max(1, round(300 / res_sec))  # Anzeige: 5-Minuten-Punkte
     dt_slot = dd.dt_h * step
+    m = max(1, n // step)
     opt = result.oracle_plan
     b = o["battery"]
     cap = float(b.get("capacity_kwh") or 0) or 1.0
     eta = float(b.get("eta") or 1.0) or 1.0
 
     def r3(a):
-        return [round(float(x), 3) for x in np.nan_to_num(np.asarray(a, dtype=float)[sl])]
+        a = np.nan_to_num(np.asarray(a, dtype=float))[:n]
+        if step == 1:
+            return [round(float(x), 3) for x in a]
+        return [round(float(x), 3)
+                for x in a[:m * step].reshape(m, step).mean(axis=1)]
 
-    idx = list(range(0, n, step))
-    t = [int(i * res_sec / 60.0) for i in idx]
+    t = [int(i * step * res_sec / 60.0) for i in range(m)]
 
     net = (tr["imp"] + tr["pv"] - tr["base_load"] - tr["hp"]
            - tr["wb"] - tr["exp"])

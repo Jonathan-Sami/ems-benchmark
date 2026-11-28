@@ -20,7 +20,7 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent.parent
 M = json.load(open(BASE / "server/manufacturers.json"))
 
-VER = "0.10.7"
+VER = "0.10.8"
 
 # Kais Geräteangaben exakt gegen die Listen normalisieren
 def exact(lst, want):
