@@ -138,7 +138,7 @@ HTML = """<!doctype html><html lang="de"><head><meta charset="utf-8">
  <span class="headbtns">
  <a class="sitebtn" href="__SITE__" target="_blank" rel="noopener">Alle Benchmarks sehen
   <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5H5.06l6.97 6.97a.75.75 0 1 1-1.06 1.06L4 4.56v2.19a.75.75 0 0 1-1.5 0v-4.5a.75.75 0 0 1 .75-.75Z"/><path d="M2 12.25A.75.75 0 0 1 2.75 11.5h10.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z"/></svg></a>
- <button class="themebtn" id="tbtn" title="Hell/Dunkel"></button></span>
+ <button class="themebtn" id="tbtn" title="Hell/Dunkel" onclick="window.__themeToggle&&__themeToggle()"></button></span>
 </header>
 <div class="sub">__SUB__</div>
 
@@ -189,7 +189,6 @@ const SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.4"/><path d="M1
    b.title=d===null?'Hell/Dunkel ( folgt dem System — klicken zum Festlegen )':(isDark()?'Zu Hell wechseln':'Zu Dunkel wechseln')}}
  window.__themeToggle=function(){try{localStorage.setItem('emsbench-theme',isDark()?'light':'dark')}catch(e){}
   d=isDark()?false:true;paint()};
- document.getElementById('tbtn').addEventListener('click',window.__themeToggle);
  mq.addEventListener('change',()=>{if(d===null)paint()});
  addEventListener('DOMContentLoaded',paint);paint()})();
 const DAYS=__DATA__;
@@ -375,6 +374,7 @@ def start_server(port, db_path, version, tz):
                 data = json.dumps(data).encode()
             self.send_response(code)
             self.send_header("Content-Type", ctype)
+            self.send_header("Cache-Control", "no-store")
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
             self.wfile.write(data)
