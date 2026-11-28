@@ -24,16 +24,32 @@ _OPTIONS_FILE = os.environ.get("BENCH_OPTIONS", "/data/options.json")
 SITE_URL = os.environ.get("BENCH_API_URL", "http://192.168.2.213:8090")
 
 LOGO = ('<svg viewBox="0 0 512 512" fill="none" stroke-linecap="round" '
-        'stroke-linejoin="round"><path d="M84 208 L256 72 L428 208" stroke="#0F172A" '
+        'stroke-linejoin="round"><path d="M84 208 L256 72 L428 208" stroke="currentColor" '
         'stroke-width="30"/><rect x="132" y="336" width="66" height="96" rx="16" '
-        'fill="#0F172A"/><rect x="223" y="288" width="66" height="144" rx="16" '
-        'fill="#0F172A"/><rect x="314" y="240" width="66" height="192" rx="16" '
+        'fill="currentColor"/><rect x="223" y="288" width="66" height="144" rx="16" '
+        'fill="currentColor"/><rect x="314" y="240" width="66" height="192" rx="16" '
         'fill="#10B981"/></svg>')
 
 CSS = """
 :root{--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--bg:#f4f6f9;--card:#ffffff;
 --green:#10b981;--orange:#f97316;--red:#ef4444;--amber:#f59e0b;
+--seg:#eef1f6;--seg-on:#ffffff;--hover:#f8fafc;--kpi1:#ffffff;--kpi2:#fbfcfe;
+--btn-bg:var(--ink);--btn-fg:#fff;--input-bg:#fff;--grid:#eef1f6;--tip-bg:#0f172a;--tip-fg:#fff;
 --shadow:0 1px 2px rgba(15,23,42,.05),0 8px 24px -12px rgba(15,23,42,.12)}
+@media (prefers-color-scheme: dark){:root:not(.light){--ink:#e6e9ec;--mut:#9aa7b4;--line:#39424e;--bg:#0d1117;--card:#161b22;
+--seg:#1c2128;--seg-on:#2d333b;--hover:#1c2128;--kpi1:#191f27;--kpi2:#12171e;
+--btn-bg:#e6e9ec;--btn-fg:#0f172a;--input-bg:#0d1117;--grid:#21262d;--tip-bg:#2d333b;--tip-fg:#e6e9ec;
+--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px -12px rgba(0,0,0,.6)}
+:root:not(.light) .idx.good{background:#0d3323;color:#4ade80}
+:root:not(.light) .idx.mid{background:#3a2b0d;color:#fbbf24}
+:root:not(.light) .idx.bad{background:#3a1214;color:#f87171}}
+html.dark{--ink:#e6e9ec;--mut:#9aa7b4;--line:#39424e;--bg:#0d1117;--card:#161b22;
+--seg:#1c2128;--seg-on:#2d333b;--hover:#1c2128;--kpi1:#191f27;--kpi2:#12171e;
+--btn-bg:#e6e9ec;--btn-fg:#0f172a;--input-bg:#0d1117;--grid:#21262d;--tip-bg:#2d333b;--tip-fg:#e6e9ec;
+--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px -12px rgba(0,0,0,.6)}
+html.dark .idx.good{background:#0d3323;color:#4ade80}
+html.dark .idx.mid{background:#3a2b0d;color:#fbbf24}
+html.dark .idx.bad{background:#3a1214;color:#f87171}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 background-image:radial-gradient(1200px 500px at 85% -160px,rgba(16,185,129,.10),transparent 60%),
@@ -42,9 +58,9 @@ radial-gradient(900px 420px at -10% -140px,rgba(249,115,22,.08),transparent 60%)
 header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.3px}
 .brand svg{width:30px;height:30px}
-.verchip{font-size:11.5px;font-weight:700;color:var(--mut);background:#fff;border:1px solid var(--line);
+.verchip{font-size:11.5px;font-weight:700;color:var(--mut);background:var(--card);border:1px solid var(--line);
 border-radius:99px;padding:2px 10px;margin-left:2px;vertical-align:2px}
-.sitebtn{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:#fff;text-decoration:none;
+.sitebtn{display:inline-flex;align-items:center;gap:9px;background:var(--btn-bg);color:var(--btn-fg);text-decoration:none;
 font-weight:700;font-size:14.5px;padding:11px 20px;border-radius:99px;
 transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s;box-shadow:0 10px 26px -12px rgba(15,23,42,.5)}
 .sitebtn:hover{transform:translateY(-3px);box-shadow:0 18px 34px -14px rgba(15,23,42,.55)}
@@ -56,16 +72,16 @@ box-shadow:var(--shadow);margin-bottom:18px;animation:rise .5s cubic-bezier(.16,
 .card:nth-of-type(2){animation-delay:.06s}.card:nth-of-type(3){animation-delay:.12s}.card:nth-of-type(4){animation-delay:.18s}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
-.seg{display:inline-flex;background:#eef1f6;border-radius:99px;padding:3px}
+.seg{display:inline-flex;background:var(--seg);border-radius:99px;padding:3px}
 .seg button{border:0;background:transparent;font:inherit;font-weight:600;font-size:13.5px;color:var(--mut);
 padding:7px 16px;border-radius:99px;cursor:pointer;transition:all .2s}
-.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 6px rgba(15,23,42,.14)}
+.seg button.on{background:var(--seg-on);color:var(--ink);box-shadow:0 1px 6px rgba(15,23,42,.14)}
 .seg button:not(.on):hover{color:var(--ink)}
-input[type=date]{font:inherit;font-size:13.5px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff;color:var(--ink)}
+input[type=date]{font:inherit;font-size:13.5px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--input-bg);color:var(--ink)}
 .note{color:var(--mut);font-size:12.5px}
 .bad{color:var(--red)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
-.kpi{background:linear-gradient(180deg,#fff,#fbfcfe);border:1px solid var(--line);border-radius:14px;
+.kpi{background:linear-gradient(180deg,var(--kpi1),var(--kpi2));border:1px solid var(--line);border-radius:14px;
 padding:14px 16px;transition:transform .2s,box-shadow .2s}
 .kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
 .kpi .v{font-size:24px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
@@ -75,9 +91,9 @@ h3{margin:0 0 12px;font-size:15.5px}
 table{border-collapse:collapse;width:100%;font-size:13.5px}
 th{text-align:left;color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px;
 padding:8px 10px;border-bottom:1px solid var(--line)}
-td{padding:9px 10px;border-bottom:1px solid #eef1f6;font-variant-numeric:tabular-nums}
+td{padding:9px 10px;border-bottom:1px solid var(--grid);font-variant-numeric:tabular-nums}
 tbody tr{transition:background .15s}
-tbody tr:hover{background:#f8fafc}
+tbody tr:hover{background:var(--hover)}
 tbody tr:last-child td{border-bottom:0}
 .tscroll{overflow-x:auto}
 .idx{display:inline-block;min-width:56px;text-align:center;font-weight:700;border-radius:99px;padding:2px 9px;font-size:12.5px}
@@ -86,8 +102,8 @@ button.act{border:0;font:inherit;font-weight:700;font-size:14px;border-radius:12
 transition:transform .2s,box-shadow .2s,opacity .2s}
 button.act.primary{background:var(--green);color:#fff;box-shadow:0 8px 20px -8px rgba(16,185,129,.55)}
 button.act.primary:hover{transform:translateY(-2px);box-shadow:0 14px 26px -10px rgba(16,185,129,.6)}
-button.act.sec{background:#eef1f6;color:var(--ink)}
-button.act.sec:hover{transform:translateY(-2px);background:#e4e9f0}
+button.act.sec{background:var(--seg);color:var(--ink)}
+button.act.sec:hover{transform:translateY(-2px);background:var(--line)}
 button.act:disabled{opacity:.45;cursor:wait;transform:none}
 #runlog{margin-top:12px;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#cbd5e1;background:#0f172a;
 border-radius:12px;padding:12px 14px;white-space:pre-wrap;display:none}
@@ -101,8 +117,8 @@ border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-ri
 @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 .bar:hover{opacity:1!important;filter:brightness(1.12)}
 svg text{font-size:10.5px;fill:var(--mut)}
-.gridline{stroke:#eef1f6;stroke-width:1}
-.tip{position:fixed;z-index:9;background:var(--ink);color:#fff;font-size:12px;line-height:1.45;border-radius:9px;
+.gridline{stroke:var(--grid);stroke-width:1}
+.tip{position:fixed;z-index:9;background:var(--tip-bg);color:var(--tip-fg);font-size:12px;line-height:1.45;border-radius:9px;
 padding:7px 11px;pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;box-shadow:0 8px 24px -8px rgba(15,23,42,.5)}
 .foot{color:var(--mut);font-size:12.5px;text-align:center;margin-top:26px}
 @media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}}
@@ -150,6 +166,12 @@ HTML = """<!doctype html><html lang="de"><head><meta charset="utf-8">
 </div>
 <div class="tip" id="tip"></div>
 <script>
+(function(){const p=new URLSearchParams(location.search);let d=null;
+ if(p.get('dark')!==null)d=p.get('dark')==='1';
+ else if(p.get('theme'))d=/dark/i.test(p.get('theme'));
+ const mq=matchMedia('(prefers-color-scheme: dark)');
+ function ap(){document.documentElement.classList.toggle('dark', d===null?mq.matches:d)}
+ mq.addEventListener('change',()=>{if(d===null)ap()});ap()})();
 const DAYS=__DATA__;
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
 function qclass(q){return q==null?'':(q>=0.85?'good':(q>=0.6?'mid':'bad'))}

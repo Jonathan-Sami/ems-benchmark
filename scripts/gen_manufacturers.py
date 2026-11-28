@@ -5,10 +5,12 @@ import json
 import re
 
 MD = "/home/kai/energy-universe/EMS-Benchmark_Herstellerlisten.md"
-EXTRA_HEMS = ["Akkudoktor-EOS", "eigene"]
+EXTRA_HEMS = ["Akkudoktor-EOS", "eigene", "NeoGrid AI", "Solistrom"]
 
 
-def grab(md, start_marker, end_marker, bold=False):
+def grab(md, start_marker, end_marker, bold=False, product=False):
+    """bold=True: fettet Feld (Hersteller). product=True: Produktname(n) nach '—'
+    (Komma-getrennte Mehrfachprodukte werden eigene Eintraege)."""
     s = md.index(start_marker)
     e = md.index(end_marker, s)
     out = []
@@ -17,6 +19,17 @@ def grab(md, start_marker, end_marker, bold=False):
         if not m:
             continue
         t = m.group(1).strip()
+        if product:
+            m2 = re.match(r"\*\*(.+?)\*\*\s*(?:—|-)\s*(.+)", t)
+            if m2:
+                prod = m2.group(2)
+                if prod.startswith("*"):  # '*ergänzt…' — Herstellername ist schon der Systemname
+                    t = m2.group(1).strip()
+                else:
+                    for part in prod.split(","):
+                        out.append(part.replace("]", "").replace("®", "").replace("\u00ad", "").strip())
+                    continue
+            t = re.sub(r"\*\*", "", t)  # Ergänzung ohne Produktstrich
         if bold:
             m2 = re.match(r"\*\*(.+?)\*\*", t)
             if not m2:
@@ -27,7 +40,7 @@ def grab(md, start_marker, end_marker, bold=False):
             continue
         out.append(t)
     seen, res = set(), []
-    for t in sorted(out + EXTRA_HEMS if bold else out, key=str.lower):
+    for t in sorted((out + EXTRA_HEMS) if (bold or product) else out, key=str.lower):
         if t.lower() not in seen:
             seen.add(t.lower())
             res.append(t)
@@ -36,7 +49,7 @@ def grab(md, start_marker, end_marker, bold=False):
 
 md = open(MD, encoding="utf-8").read()
 lists = {
-    "HEMS": grab(md, "## 1. HEMS", "Plattform-Hintergründe", bold=True),
+    "HEMS": grab(md, "## 1. HEMS", "Plattform-Hintergründe", product=True),
     "WECHSELRICHTER": grab(md, "### 2a. Wechselrichter", "### 2b."),
     "SPEICHER": grab(md, "### 2b. Batteriespeicher", "PV-Modul-Hersteller"),
     "WALLBOX": grab(md, "## 3. Wallboxen", "## 4. Wärmepumpen"),
