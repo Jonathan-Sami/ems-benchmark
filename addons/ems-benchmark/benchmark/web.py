@@ -97,6 +97,8 @@ padding:7px 10px;font:inherit;font-size:13.5px;cursor:pointer}
 background:var(--bg);animation:fadeup .5s both}
 .dkpi span{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em}
 .dkpi b{font-size:17px}.dkpi i{font-size:12px;color:var(--mut);font-style:normal}
+.dkpi.save{border-color:var(--green)}
+.dkpi.save b{color:var(--green)}
 .dwrap{position:relative;height:400px}
 .dlegend{display:flex;flex-wrap:wrap;gap:7px 18px;font-size:12.5px;color:var(--mut);margin:12px 2px 2px}
 .dlegend .li{display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none;transition:opacity .2s}
@@ -419,12 +421,14 @@ document.getElementById('dayc').addEventListener('mouseleave',()=>{
 function drawKpis(){const k=document.getElementById('dkpis'),R=SER.kpi.real,O=SER.kpi.opt;
  let i=0;
  const row=(lab,rv,ov)=>`<div class="dkpi" style="animation-delay:${i++*70}ms"><span>${lab}</span><b>${rv}</b><i>Optimum: ${ov}</i></div>`;
- k.innerHTML=row('Autarkie',p1(R.autarky),p1(O.autarky))
+ const solo=(lab,v,sub)=>`<div class="dkpi" style="animation-delay:${i++*70}ms"><span>${lab}</span><b>${v}</b><i>${sub}</i></div>`;
+ const sp=(R.cost!=null&&O.cost!=null)?money(Math.max(0,R.cost-O.cost)):'–';
+ k.innerHTML=row('Kosten',money(R.cost),money(O.cost))
+  +`<div class="dkpi save" style="animation-delay:${i++*70}ms"><span>Sparpotential</span><b>${sp}</b><i>Kosten Real − Optimum</i></div>`
+  +row('Autarkie',p1(R.autarky),p1(O.autarky))
   +row('Eigenverbrauch',p1(R.eigen),p1(O.eigen))
   +row('Netzbezug',kfmt(R.imp_kwh),kfmt(O.imp_kwh))
-  +row('Einspeisung',kfmt(R.exp_kwh),kfmt(O.exp_kwh))
-  +row('PV-Erzeugung',kfmt(R.pv_kwh),kfmt(O.pv_kwh))
-  +row('Kosten',money(R.cost),money(O.cost))}
+  +solo('PV-Erzeugung',kfmt(R.pv_kwh),'wetterbedingt · nicht optimierbar')}
 function setMode(m){DMODE=m;document.getElementById('mreal').classList.toggle('on',m==='real');
  document.getElementById('mopt').classList.toggle('on',m==='opt');drawDay()}
 document.getElementById('mreal').onclick=()=>setMode('real');

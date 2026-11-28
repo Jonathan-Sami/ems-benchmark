@@ -21,7 +21,7 @@ from benchmark import ha, quality, store, push, userconfig, series
 from benchmark.manufacturers import MANUFACTURERS
 from benchmark.model import BenchConfig, BatteryConfig, DeviceLimits, DayData, run_day
 
-BENCHMARK_VERSION = "0.10.10"
+BENCHMARK_VERSION = "0.10.11"
 DATA_DIR = os.environ.get("BENCH_DATA", "/data")
 OPTIONS_FILE = os.environ.get("BENCH_OPTIONS", "/data/options.json")
 
