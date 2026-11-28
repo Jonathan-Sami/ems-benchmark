@@ -17,11 +17,11 @@ import time
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from benchmark import ha, quality, store, push, userconfig
+from benchmark import ha, quality, store, push, userconfig, series
 from benchmark.manufacturers import MANUFACTURERS
 from benchmark.model import BenchConfig, BatteryConfig, DeviceLimits, DayData, run_day
 
-BENCHMARK_VERSION = "0.8.5"
+BENCHMARK_VERSION = "0.9.4"
 DATA_DIR = os.environ.get("BENCH_DATA", "/data")
 OPTIONS_FILE = os.environ.get("BENCH_OPTIONS", "/data/options.json")
 
@@ -100,6 +100,7 @@ def _run_opts_v6(raw: dict) -> dict:
             "hp": s(wp.get("Sensor")),
             "wb": s(wb.get("Sensor")),
             "wb_connected": s(wb.get("Auto anwesend (Binärsensor)")),
+            "soc": s(sp.get("Ladezustand in % (Sensor)")),
             "price_imp": s(tf.get("Preis Bezug (Sensor)")),
             "price_exp": (s(tf.get("Sensor Einspeisung (nur bei Direktvermarktung)"))
                           if modus == "Direktvermarktung" else ""),
@@ -280,6 +281,11 @@ def run_one_day(con, o: dict, day: dtm.date, tz):
           f"index={result.quotient:.3f} relaxed={result.relaxed} "
           f"({time.time()-t0:.1f}s) {flags}")
     store.save_day(con, day.isoformat(), BENCHMARK_VERSION, res_sec, result, flags)
+    try:
+        store.save_series(con, day.isoformat(),
+                          series.build_series(day, res_sec, tr, dd, result, o))
+    except Exception as e:
+        print(f"{day}: Zeitserien fehlgeschlagen: {e}")
     return result
 
 

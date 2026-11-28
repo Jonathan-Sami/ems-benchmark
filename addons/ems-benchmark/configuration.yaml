@@ -1,6 +1,6 @@
 name: EMS Benchmark
 description: Unabhängiger Blackbox-Benchmark für Heim-Energiemanagementsysteme
-version: "0.8.5"
+version: "0.9.4"
 slug: ems-benchmark
 url: https://github.com/Jonathan-Sami/ems-benchmark
 arch:
@@ -40,6 +40,7 @@ schema:
     Ladeleistung in kW: float
     Entladeleistung in kW: float
     Wirkungsgrad in %: int(1,100)
+    Ladezustand in % (Sensor): str?
   Wärmepumpe:
     Hersteller: list(1 Eco Design GmbH|Acalor|AEG Haustechnik|Aira|AISIN|Akvaterm|Alpha Innotec|Andivi|aqotec|Atlantic|Austria Email|Beglau|Bosch|Broetje|Buderus|Carrier|Consolar|CTA|CTC|Daikin|Dimplex|Drexel + Weiss|Dürr thermea|Ecoforest|ELCO|emcal|FläktGroup|Gorenje|Guangdong New Energy / Newntide|Haier|heatrex|Heliotherm|HIDROS|Hisense|Hoval|iDM|Junkers|Kampmann|Kermi|KNV|Kronoterm|LAMBDA|LG|M-TEC|MHG Heiztechnik|Michl Technik|Midea|Mitsubishi|Nefit|NIBE|Nilan|Novelan|Ochsner|Oertli|Panasonic|PEGO|Phnix|ratiotherm|Remeha|REMKO|ROTEX (Werk stillgelegt)|Roth Werke|S+W|Samsung|Saunier Duval|Schneider Electric|Siemens|SmartHeat|SOLARFOCUS|Solvis|SONNENKRAFT|Stiebel Eltron|Stulz|Systemair|tecalor|TEDOM|Thermia|Thermotion|Trane|Vaillant|Viessmann|Waterkote|Waterkotte|Weishaupt|Wolf|Worcester Bosch|Yanmar|Ygnis)?
     Sensor: str
@@ -72,6 +73,7 @@ options:
     Ladeleistung in kW: 0.0
     Entladeleistung in kW: 0.0
     Wirkungsgrad in %: 95
+    Ladezustand in % (Sensor): ""
   Wärmepumpe:
     Sensor: ""
     Mindestleistung in kW: 0.5

@@ -170,11 +170,10 @@ def _build_and_solve(dd: DayData, cfg: BenchConfig, binaries: bool):
     # battery bounds
     lb[ix["E"]] = B.soc_min_frac * B.capacity_kwh
     ub[ix["E"]] = B.soc_max_frac * B.capacity_kwh
-    if abs(B.soc_start_frac - B.soc_end_frac) < 1e-9:
-        lb[ix["E"].start] = ub[ix["E"].start] = E_mid
-    else:
-        lb[ix["E"].start] = ub[ix["E"].start] = B.soc_start_frac * B.capacity_kwh
-        lb[ix["E"].stop - 1] = ub[ix["E"].stop - 1] = B.soc_end_frac * B.capacity_kwh
+    # 50/50-Regel: Start UND Ende hart auf Vorgabe (auch bei start==end —
+    # sonst darf der Oracle den Tagesanfang gratis leerziehen).
+    lb[ix["E"].start] = ub[ix["E"].start] = B.soc_start_frac * B.capacity_kwh
+    lb[ix["E"].stop - 1] = ub[ix["E"].stop - 1] = B.soc_end_frac * B.capacity_kwh
 
     # --- objective
     cost = np.zeros(nvar)

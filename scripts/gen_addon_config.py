@@ -20,7 +20,7 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent.parent
 M = json.load(open(BASE / "server/manufacturers.json"))
 
-VER = "0.8.5"
+VER = "0.9.4"
 
 # Kais Geräteangaben exakt gegen die Listen normalisieren
 def exact(lst, want):
@@ -108,6 +108,7 @@ L.append("    Kapazität in kWh: float")
 L.append("    Ladeleistung in kW: float")
 L.append("    Entladeleistung in kW: float")
 L.append("    Wirkungsgrad in %: int(1,100)")
+L.append('    Ladezustand in % (Sensor): str?')
 L.append("  Wärmepumpe:")
 L.append("    Hersteller: " + listtype(LISTMAP["Wärmepumpe"]) + "?")
 L.append("    Sensor: str")
@@ -143,6 +144,7 @@ L.append("    Kapazität in kWh: 0.0")
 L.append("    Ladeleistung in kW: 0.0")
 L.append("    Entladeleistung in kW: 0.0")
 L.append("    Wirkungsgrad in %: 95")
+L.append('    Ladezustand in % (Sensor): ""')
 L.append("  Wärmepumpe:")
 L.append('    Sensor: ""')
 L.append("    Mindestleistung in kW: 0.5")
@@ -182,6 +184,7 @@ opts = {"options": {
         "Hersteller": KAIS["Speicher"], "Kapazität in kWh": 4.8,
         "Ladeleistung in kW": 2.2, "Entladeleistung in kW": 2.2,
         "Wirkungsgrad in %": 95,
+        "Ladezustand in % (Sensor)": "sensor.s10_451517000332_ladezustand",
     },
     "Wärmepumpe": {
         "Hersteller": KAIS["Wärmepumpe"], "Sensor": KAIS_SENSOREN["hp"],

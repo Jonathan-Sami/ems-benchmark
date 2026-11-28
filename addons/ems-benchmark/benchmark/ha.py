@@ -146,6 +146,10 @@ def build_day_traces(hist, entities, bin_start, n_slots, dt_h, units=None):
         base_load = np.maximum(pv0 + np.nan_to_num(imp) - np.nan_to_num(exp)
                                - hp0 - wb0, 0.0)
 
+    soc = None
+    if "soc" in entities and entities["soc"]:
+        soc = rs("soc")
+
     if "wb_connected" in entities and entities["wb_connected"]:
         conn = rs("wb_connected")
         window = conn > 0.5
@@ -158,7 +162,7 @@ def build_day_traces(hist, entities, bin_start, n_slots, dt_h, units=None):
         "pv": pv0, "base_load": base_load,
         "price_imp": np.nan_to_num(price_imp), "price_exp": np.nan_to_num(price_exp),
         "hp": hp0, "wb": wb0, "imp": imp, "exp": exp,
-        "window": window,
+        "soc": soc, "window": window,
         "nan_mask": (np.isnan(pv) | np.isnan(price_imp) | np.isnan(imp)
                      | np.isnan(exp)),
     }

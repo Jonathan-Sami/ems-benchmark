@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS days (
   quality_flags TEXT, pushed INTEGER DEFAULT 0,
   created_at REAL
 );
+CREATE TABLE IF NOT EXISTS day_series (
+  date TEXT PRIMARY KEY, payload TEXT, created REAL
+);
 """
 
 
@@ -39,6 +42,19 @@ def save_skipped(con, date, version, resolution_sec, flags):
         (date, version, resolution_sec, None, None, None, None, 0,
          json.dumps(flags), 1, time.time()))
     con.commit()
+
+
+def save_series(con, date, payload):
+    con.execute(
+        "INSERT OR REPLACE INTO day_series VALUES (?,?,?)",
+        (date, json.dumps(payload), time.time()))
+    con.commit()
+
+
+def get_series(con, date):
+    row = con.execute(
+        "SELECT payload FROM day_series WHERE date=?", (date,)).fetchone()
+    return json.loads(row[0]) if row else None
 
 
 def day_row(con, date):
