@@ -184,7 +184,9 @@ const SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.4"/><path d="M1
  else if(p.get('theme'))d=/dark/i.test(p.get('theme'));
  const mq=matchMedia('(prefers-color-scheme: dark)');
  function isDark(){return d===null?mq.matches:d}
- function paint(){document.documentElement.classList.toggle('dark',isDark());
+ function paint(){const dk=isDark();
+  document.documentElement.classList.toggle('dark',dk);
+  document.documentElement.classList.toggle('light',d===false);
   const b=document.getElementById('tbtn');if(b){b.innerHTML=isDark()?SUN:MOON;
    b.title=d===null?'Hell/Dunkel ( folgt dem System — klicken zum Festlegen )':(isDark()?'Zu Hell wechseln':'Zu Dunkel wechseln')}}
  window.__themeToggle=function(){try{localStorage.setItem('emsbench-theme',isDark()?'light':'dark')}catch(e){}
